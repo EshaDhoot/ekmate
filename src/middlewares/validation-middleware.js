@@ -97,11 +97,11 @@ export const validateSignIn = async (req, res, next) => {
         password: yup
             .string()
             .required("Password is required")
-            .min(8, "Password must be at least 8 characters long")
-            .matches(
-                /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                "Password must contain at least one letter, one number, and one special character"
-            ),
+            // .min(8, "Password must be at least 8 characters long")
+            // .matches(
+            //     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+            //     "Password must contain at least one letter, one number, and one special character"
+            // ),
     });
 
     try {

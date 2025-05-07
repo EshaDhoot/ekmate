@@ -61,7 +61,7 @@ const SignUp = () => {
       if (formData.phone_number) signupData.phone_number = formData.phone_number;
 
       // Use our custom axios instance with optimized headers
-      const response = await axiosInstance.post('/ekmate/api/v1/auth/sign-up', signupData);
+      const response = await axiosInstance.post('/auth/sign-up', signupData);
 
       if (response.data.success) {
         setSuccess('Registration successful! Please verify your email with the OTP sent to your email.');

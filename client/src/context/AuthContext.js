@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
       setError('');
       setLoading(true);
 
-      const response = await axiosInstance.post('/ekmate/api/v1/auth/sign-in', { email, password });
+      const response = await axiosInstance.post('/auth/sign-in', { email, password });
 
       if (response.data.success) {
         // Based on the backend response structure
