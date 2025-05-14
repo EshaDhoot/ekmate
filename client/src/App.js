@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
@@ -26,29 +27,31 @@ import Support from './components/pages/dashboard/Support';
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<><Navbar /><Home /><Footer /></>} />
-            <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
-            <Route path="/contact" element={<><Navbar /><Contact /><Footer /></>} />
-            <Route path="/signup" element={<><Navbar /><SignUp /><Footer /></>} />
-            <Route path="/simple-signup" element={<><Navbar /><SimpleSignUp /><Footer /></>} />
-            <Route path="/signin" element={<><Navbar /><SignIn /><Footer /></>} />
+      <ThemeProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<><Navbar /><Home /><Footer /></>} />
+              <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
+              <Route path="/contact" element={<><Navbar /><Contact /><Footer /></>} />
+              <Route path="/signup" element={<><Navbar /><SignUp /><Footer /></>} />
+              <Route path="/simple-signup" element={<><Navbar /><SimpleSignUp /><Footer /></>} />
+              <Route path="/signin" element={<><Navbar /><SignIn /><Footer /></>} />
 
-            {/* Protected Dashboard Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<DashboardLayout />}>
-                <Route index element={<DashboardHome />} />
-                <Route path="schedules" element={<BusSchedules />} />
-                <Route path="events" element={<Events />} />
-                <Route path="support" element={<Support />} />
+              {/* Protected Dashboard Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                  <Route index element={<DashboardHome />} />
+                  <Route path="schedules" element={<BusSchedules />} />
+                  <Route path="events" element={<Events />} />
+                  <Route path="support" element={<Support />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-        </div>
-      </Router>
+            </Routes>
+          </div>
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

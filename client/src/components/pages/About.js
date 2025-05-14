@@ -34,9 +34,9 @@ const About = () => {
               </p>
             </Col>
             <Col lg={6}>
-              <img 
-                src="https://via.placeholder.com/600x400" 
-                alt="Our mission" 
+              <img
+                src="https://via.placeholder.com/600x400"
+                alt="Our mission"
                 className="img-fluid rounded shadow"
               />
             </Col>
@@ -58,9 +58,9 @@ const About = () => {
               </p>
             </Col>
             <Col lg={6} className="order-lg-1">
-              <img 
-                src="https://via.placeholder.com/600x400" 
-                alt="Our vision" 
+              <img
+                src="https://via.placeholder.com/600x400"
+                alt="Our vision"
                 className="img-fluid rounded shadow"
               />
             </Col>
@@ -73,7 +73,7 @@ const About = () => {
         <Container>
           <h2 className="section-title text-center">Our Values</h2>
           <p className="section-subtitle text-center">The core principles that guide our work</p>
-          
+
           <Row className="mt-5">
             <Col md={6} lg={3} className="mb-4">
               <Card className="value-card">
@@ -88,7 +88,7 @@ const About = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="value-card">
                 <Card.Body className="text-center">
@@ -102,7 +102,7 @@ const About = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="value-card">
                 <Card.Body className="text-center">
@@ -116,7 +116,7 @@ const About = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="value-card">
                 <Card.Body className="text-center">
@@ -139,7 +139,7 @@ const About = () => {
         <Container>
           <h2 className="section-title text-center">Meet The Team</h2>
           <p className="section-subtitle text-center">The people behind EKmate</p>
-          
+
           <Row className="mt-5">
             <Col md={6} lg={3} className="mb-4">
               <Card className="team-card">
@@ -153,7 +153,7 @@ const About = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="team-card">
                 <Card.Img variant="top" src="https://via.placeholder.com/300x300" />
@@ -166,7 +166,7 @@ const About = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="team-card">
                 <Card.Img variant="top" src="https://via.placeholder.com/300x300" />
@@ -179,7 +179,7 @@ const About = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="team-card">
                 <Card.Img variant="top" src="https://via.placeholder.com/300x300" />

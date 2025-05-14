@@ -44,7 +44,7 @@
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   transition: all 0.3s ease;
 }
@@ -79,7 +79,7 @@
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 5px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -99,7 +99,7 @@
     transform: translateX(-100%);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   }
-  
+
   .sidebar.open {
     transform: translateX(0);
   }

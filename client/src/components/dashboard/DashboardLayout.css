@@ -19,7 +19,8 @@
 .main-content {
   flex: 1;
   padding: 80px 20px 20px;
-  background-color: #f8f9fa;
+  background-color: var(--background-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @media (max-width: 991px) {

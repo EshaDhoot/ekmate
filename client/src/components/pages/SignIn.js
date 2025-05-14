@@ -98,8 +98,9 @@ const SignIn = () => {
                   <Button
                     variant="primary"
                     type="submit"
-                    className="w-100 mb-3"
+                    className="w-100 mb-3 custom-btn"
                     disabled={loading}
+                    style={{ backgroundColor: '#9575cd', borderColor: '#9575cd' }}
                   >
                     {loading ? 'Signing In...' : 'Sign In'}
                   </Button>

@@ -4,12 +4,13 @@
   left: 0;
   right: 0;
   height: 60px;
-  background-color: white;
+  background-color: var(--card-bg-light);
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 999;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .bottom-nav-item {

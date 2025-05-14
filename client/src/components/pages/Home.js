@@ -13,7 +13,14 @@ const Home = () => {
             <Col lg={6} className="hero-content">
               <h1 className="hero-title">Effortless College Commutes: Your Bus Schedules at Your Fingertips!</h1>
               <p className="hero-subtitle">Track your bus, plan your commute, and never miss a ride with our real-time bus management system.</p>
-              <Button variant="primary" size="lg" className="hero-button">Download App</Button>
+              <Button
+                variant="primary"
+                size="lg"
+                className="hero-button custom-btn"
+                style={{ backgroundColor: '#9575cd', borderColor: '#9575cd' }}
+              >
+                Download App
+              </Button>
             </Col>
             <Col lg={6} className="hero-image">
               <img src="https://via.placeholder.com/600x400" alt="Bus tracking app" className="img-fluid" />
@@ -27,7 +34,7 @@ const Home = () => {
         <Container>
           <h2 className="section-title">Key Features</h2>
           <p className="section-subtitle">Discover what makes our bus management system special</p>
-          
+
           <Row>
             <Col md={6} lg={3} className="mb-4">
               <Card className="feature-card">
@@ -42,7 +49,7 @@ const Home = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="feature-card">
                 <Card.Body className="text-center">
@@ -56,7 +63,7 @@ const Home = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="feature-card">
                 <Card.Body className="text-center">
@@ -70,7 +77,7 @@ const Home = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="feature-card">
                 <Card.Body className="text-center">
@@ -84,7 +91,7 @@ const Home = () => {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col md={6} lg={3} className="mb-4">
               <Card className="feature-card">
                 <Card.Body className="text-center">
@@ -107,7 +114,7 @@ const Home = () => {
         <Container>
           <h2 className="section-title">How It Works</h2>
           <p className="section-subtitle">Get started with EKmate in just a few simple steps</p>
-          
+
           <Row className="justify-content-center">
             <Col md={10}>
               <div className="steps-container">
@@ -118,7 +125,7 @@ const Home = () => {
                     <p>Create an account with your college credentials.</p>
                   </div>
                 </div>
-                
+
                 <div className="step">
                   <div className="step-number">2</div>
                   <div className="step-content">
@@ -126,7 +133,7 @@ const Home = () => {
                     <p>Easily browse through daily or event-specific bus schedules.</p>
                   </div>
                 </div>
-                
+
                 <div className="step">
                   <div className="step-number">3</div>
                   <div className="step-content">
@@ -134,7 +141,7 @@ const Home = () => {
                     <p>Monitor your bus's location in real-time for accurate arrival times.</p>
                   </div>
                 </div>
-                
+
                 <div className="step">
                   <div className="step-number">4</div>
                   <div className="step-content">
@@ -152,62 +159,92 @@ const Home = () => {
       <section className="section college-section">
         <Container>
           <h2 className="section-title">College Life</h2>
-          
+
           <Row className="mb-5">
             <Col lg={6} className="mb-4 mb-lg-0">
               <div className="college-content">
                 <h3>Why Choose [College Name]?</h3>
                 <p>At [College Name], we pride ourselves on offering a vibrant academic and social environment. Whether it's cutting-edge facilities or a dynamic student life, there's something for everyone.</p>
-                <Button variant="outline-primary">Learn More</Button>
+                <Button
+                  variant="outline-primary"
+                  className="custom-outline-btn"
+                  style={{
+                    borderColor: '#9575cd',
+                    color: '#9575cd',
+                    '--hover-bg': '#9575cd',
+                    '--hover-border': '#9575cd',
+                    '--hover-color': 'white'
+                  }}
+                >
+                  Learn More
+                </Button>
               </div>
             </Col>
             <Col lg={6}>
               <img src="https://via.placeholder.com/600x400" alt="College campus" className="img-fluid rounded" />
             </Col>
           </Row>
-          
+
           <Row className="mb-5">
             <Col lg={6} className="order-lg-2 mb-4 mb-lg-0">
               <div className="college-content">
                 <h3>Explore Our Campus</h3>
                 <p>Our campus offers modern amenities, research labs, sports facilities, and much more. Our bus system ensures that students can easily navigate the entire campus and make the most of these resources.</p>
-                <Button variant="outline-primary">Campus Tour</Button>
+                <Button
+                  variant="outline-primary"
+                  className="custom-outline-btn"
+                  style={{ borderColor: '#9575cd', color: '#9575cd' }}
+                >
+                  Campus Tour
+                </Button>
               </div>
             </Col>
             <Col lg={6} className="order-lg-1">
               <img src="https://via.placeholder.com/600x400" alt="Campus facilities" className="img-fluid rounded" />
             </Col>
           </Row>
-          
+
           <Row>
             <Col lg={6} className="mb-4 mb-lg-0">
               <div className="college-content">
                 <h3>Excellence in Education</h3>
                 <p>Our academic programs are designed to challenge and inspire students. With state-of-the-art labs, renowned faculty, and a diverse range of programs, [College Name] helps you shape your future.</p>
-                <Button variant="outline-primary">Explore Programs</Button>
+                <Button
+                  variant="outline-primary"
+                  className="custom-outline-btn"
+                  style={{ borderColor: '#9575cd', color: '#9575cd' }}
+                >
+                  Explore Programs
+                </Button>
               </div>
             </Col>
             <Col lg={6}>
               <img src="https://via.placeholder.com/600x400" alt="Academic excellence" className="img-fluid rounded" />
             </Col>
           </Row>
-          
+
           <Row className="mt-5">
             <Col className="text-center">
               <h3>Join Us at Our Next Event!</h3>
               <p>Be part of our annual [Event Name], and use our bus system to attend hassle-free! Learn more about the event and our transportation services.</p>
-              <Button variant="primary">Learn More About Events</Button>
+              <Button
+                variant="primary"
+                className="custom-btn"
+                style={{ backgroundColor: '#9575cd', borderColor: '#9575cd' }}
+              >
+                Learn More About Events
+              </Button>
             </Col>
           </Row>
         </Container>
       </section>
 
       {/* Screenshots/Demo Section */}
-      <section className="section screenshots-section">
+      {/* <section className="section screenshots-section">
         <Container>
           <h2 className="section-title">App Screenshots</h2>
           <p className="section-subtitle">See our app in action</p>
-          
+
           <Carousel className="screenshots-carousel">
             <Carousel.Item>
               <img
@@ -244,14 +281,14 @@ const Home = () => {
             </Carousel.Item>
           </Carousel>
         </Container>
-      </section>
+      </section> */}
 
       {/* Testimonials Section */}
       <section className="section testimonials-section">
         <Container>
           <h2 className="section-title">What Our Users Say</h2>
           <p className="section-subtitle">Hear from students and administrators who use EKmate</p>
-          
+
           <Row>
             <Col md={6} className="mb-4">
               <Card className="testimonial-card">
@@ -278,7 +315,7 @@ const Home = () => {
         <Container>
           <h2 className="section-title">Benefits</h2>
           <p className="section-subtitle">Why choose our bus management system</p>
-          
+
           <Row>
             <Col md={4} className="mb-4">
               <div className="benefit-item">
@@ -316,7 +353,7 @@ const Home = () => {
         <Container>
           <h2 className="section-title">Frequently Asked Questions</h2>
           <p className="section-subtitle">Find answers to common questions</p>
-          
+
           <Row className="justify-content-center">
             <Col md={10} lg={8}>
               <Accordion defaultActiveKey="0">
@@ -361,7 +398,14 @@ const Home = () => {
         <Container className="text-center">
           <h2 className="cta-title">Ready to Join Us?</h2>
           <p className="cta-text">Discover all that [College Name] has to offer and start your journey today.</p>
-          <Button variant="primary" size="lg" className="cta-button">Apply Now</Button>
+          <Button
+            variant="primary"
+            size="lg"
+            className="cta-button"
+            style={{ backgroundColor: 'white', color: '#9575cd' }}
+          >
+            Apply Now
+          </Button>
         </Container>
       </section>
     </main>

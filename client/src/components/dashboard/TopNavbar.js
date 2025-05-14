@@ -1,17 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  FaBars, 
-  FaBell, 
-  FaUser, 
-  FaCog, 
-  FaSignOutAlt 
+import {
+  FaBars,
+  FaBell,
+  FaUser,
+  FaCog,
+  FaSignOutAlt
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import ThemeToggle from '../common/ThemeToggle';
 import './TopNavbar.css';
 
 const TopNavbar = ({ toggleSidebar }) => {
   const { currentUser, logout } = useAuth();
+  const { darkMode } = useTheme();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([
@@ -34,7 +37,7 @@ const TopNavbar = ({ toggleSidebar }) => {
       read: true
     }
   ]);
-  
+
   const profileDropdownRef = useRef(null);
   const notificationsRef = useRef(null);
 
@@ -81,16 +84,17 @@ const TopNavbar = ({ toggleSidebar }) => {
   return (
     <div className="top-navbar">
       <div className="navbar-left">
-        <button className="menu-toggle d-lg-none" onClick={toggleSidebar}>
+        <button className={`menu-toggle d-lg-none ${darkMode ? 'text-light' : ''}`} onClick={toggleSidebar}>
           <FaBars />
         </button>
-        <div className="navbar-brand d-lg-none">EKmate</div>
+        <div className={`navbar-brand d-lg-none ${darkMode ? 'text-light' : ''}`}>EKmate</div>
       </div>
-      
+
       <div className="navbar-right">
+        <ThemeToggle />
         <div className="notification-container" ref={notificationsRef}>
-          <button 
-            className="notification-button" 
+          <button
+            className={`notification-button ${darkMode ? 'text-light' : ''}`}
             onClick={toggleNotifications}
           >
             <FaBell />
@@ -98,7 +102,7 @@ const TopNavbar = ({ toggleSidebar }) => {
               <span className="notification-badge">{unreadCount}</span>
             )}
           </button>
-          
+
           {showNotifications && (
             <div className="notification-dropdown">
               <div className="notification-header">
@@ -109,12 +113,12 @@ const TopNavbar = ({ toggleSidebar }) => {
                   </button>
                 )}
               </div>
-              
+
               <div className="notification-list">
                 {notifications.length > 0 ? (
                   notifications.map(notification => (
-                    <div 
-                      key={notification.id} 
+                    <div
+                      key={notification.id}
                       className={`notification-item ${!notification.read ? 'unread' : ''}`}
                     >
                       <div className="notification-content">
@@ -129,7 +133,7 @@ const TopNavbar = ({ toggleSidebar }) => {
                   </div>
                 )}
               </div>
-              
+
               <div className="notification-footer">
                 <Link to="/dashboard/notifications" className="view-all-link">
                   View all notifications
@@ -138,24 +142,24 @@ const TopNavbar = ({ toggleSidebar }) => {
             </div>
           )}
         </div>
-        
+
         <div className="profile-container" ref={profileDropdownRef}>
-          <button 
-            className="profile-button" 
+          <button
+            className="profile-button"
             onClick={toggleProfileDropdown}
           >
             <div className="profile-avatar">
               {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : <FaUser />}
             </div>
           </button>
-          
+
           {showProfileDropdown && (
             <div className="profile-dropdown">
               <div className="profile-header">
                 <h6>{currentUser?.name || 'User'}</h6>
                 <p>{currentUser?.email || ''}</p>
               </div>
-              
+
               <div className="profile-menu">
                 <Link to="/dashboard/profile" className="profile-item">
                   <FaUser className="profile-icon" />
