@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema({
     language: {
         type: String,
         enum: ['en', 'hi', 'gu', 'mr', 'ta', 'te', 'kn', 'ml', 'pa', 'bn'],
-        default: 'en' // Default language is English
+        default: 'en'
     },
     accessibilitySettings: {
         highContrast: {
@@ -68,13 +68,13 @@ const userSchema = new mongoose.Schema({
         }
     },
     deviceToken: {
-        type: String // For push notifications
+        type: String
     },
     lastLogin: {
         type: Date
     },
     profilePicture: {
-        type: String // URL to profile picture
+        type: String
     }
 }, { timestamps: true });
 
@@ -91,7 +91,7 @@ userSchema.methods.comparePassword = async function compare(password) {
 
 userSchema.methods.genJWT = function generate() {
     return jwt.sign({id: this._id, email: this.email}, SECRET_KEY, {
-        expiresIn: '1h'
+        expiresIn: '1d'
     })
 }
 

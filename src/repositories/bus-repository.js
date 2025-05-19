@@ -20,22 +20,162 @@ class BusRepository {
         try {
             const skip = (page - 1) * limit;
 
-            const buses = await Bus.find(filter)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .populate('driver', 'name phone_number');
+            // Check if we have a complex filter with $or operator
+            const hasComplexFilter = filter.$or && Array.isArray(filter.$or);
 
-            const total = await Bus.countDocuments(filter);
+            let buses;
 
-            console.log("getAll method called successfully from BusRepository to get all buses.");
-            return {
-                buses,
-                total,
-                page,
-                limit,
-                pages: Math.ceil(total / limit)
-            };
+            if (hasComplexFilter) {
+                // Use aggregation pipeline for complex filtering with $or
+                buses = await Bus.aggregate([
+                    {
+                        $match: filter
+                    },
+                    { $sort: { createdAt: -1 } },
+                    { $skip: skip },
+                    { $limit: limit },
+                    {
+                        $lookup: {
+                            from: 'drivers',
+                            localField: 'driver',
+                            foreignField: '_id',
+                            as: 'driverInfo'
+                        }
+                    },
+                    {
+                        $addFields: {
+                            driver: { $arrayElemAt: ['$driverInfo', 0] }
+                        }
+                    },
+                    {
+                        $project: {
+                            driverInfo: 0,
+                            'driver.password': 0,
+                            'driver.otp': 0
+                        }
+                    }
+                ]);
+
+                // Count total for pagination
+                const countPipeline = [
+                    {
+                        $match: filter
+                    },
+                    { $count: 'total' }
+                ];
+
+                const countResult = await Bus.aggregate(countPipeline);
+                const total = countResult.length > 0 ? countResult[0].total : 0;
+
+                console.log("getAll method with complex filter called successfully from BusRepository.");
+                return {
+                    buses,
+                    total,
+                    page,
+                    limit,
+                    pages: Math.ceil(total / limit)
+                };
+            } else {
+                // Check if we need to search in routes.pickupPoint
+                const hasRouteFilter = filter.title && filter.title.$regex;
+
+                if (hasRouteFilter) {
+                    // Use aggregation pipeline for route filtering
+                    const routeSearchTerm = filter.title.$regex;
+                    const routeOptions = filter.title.$options || 'i';
+
+                    // Create a new filter without the title property
+                    const newFilter = { ...filter };
+                    delete newFilter.title;
+
+                    buses = await Bus.aggregate([
+                        {
+                            $match: {
+                                $and: [
+                                    newFilter, // Include any other filters
+                                    {
+                                        $or: [
+                                            { title: { $regex: routeSearchTerm, $options: routeOptions } },
+                                            { 'routes.pickupPoint': { $regex: routeSearchTerm, $options: routeOptions } }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        { $sort: { createdAt: -1 } },
+                        { $skip: skip },
+                        { $limit: limit },
+                        {
+                            $lookup: {
+                                from: 'drivers',
+                                localField: 'driver',
+                                foreignField: '_id',
+                                as: 'driverInfo'
+                            }
+                        },
+                        {
+                            $addFields: {
+                                driver: { $arrayElemAt: ['$driverInfo', 0] }
+                            }
+                        },
+                        {
+                            $project: {
+                                driverInfo: 0,
+                                'driver.password': 0,
+                                'driver.otp': 0
+                            }
+                        }
+                    ]);
+
+                    // Count total for pagination
+                    const countPipeline = [
+                        {
+                            $match: {
+                                $and: [
+                                    newFilter,
+                                    {
+                                        $or: [
+                                            { title: { $regex: routeSearchTerm, $options: routeOptions } },
+                                            { 'routes.pickupPoint': { $regex: routeSearchTerm, $options: routeOptions } }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        { $count: 'total' }
+                    ];
+
+                    const countResult = await Bus.aggregate(countPipeline);
+                    const total = countResult.length > 0 ? countResult[0].total : 0;
+
+                    console.log("getAll method with route filter called successfully from BusRepository.");
+                    return {
+                        buses,
+                        total,
+                        page,
+                        limit,
+                        pages: Math.ceil(total / limit)
+                    };
+                } else {
+                    // Use regular find for simple filtering
+                    buses = await Bus.find(filter)
+                        .sort({ createdAt: -1 })
+                        .skip(skip)
+                        .limit(limit)
+                        .populate('driver', 'name phone_number');
+
+                    const total = await Bus.countDocuments(filter);
+
+                    console.log("getAll method called successfully from BusRepository to get all buses.");
+                    return {
+                        buses,
+                        total,
+                        page,
+                        limit,
+                        pages: Math.ceil(total / limit)
+                    };
+                }
+            }
         } catch (error) {
             console.log("getAll method called from BusRepository and throws error: ", error);
             throw error;

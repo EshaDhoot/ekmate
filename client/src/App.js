@@ -23,6 +23,9 @@ import DashboardHome from './components/pages/dashboard/DashboardHome';
 import BusSchedules from './components/pages/dashboard/BusSchedules';
 import Events from './components/pages/dashboard/Events';
 import Support from './components/pages/dashboard/Support';
+import BusTracking from './components/pages/dashboard/BusTracking';
+import Feedback from './components/pages/dashboard/Feedback';
+import UserPreferences from './components/pages/dashboard/UserPreferences';
 
 function App() {
   return (
@@ -46,6 +49,9 @@ function App() {
                   <Route path="schedules" element={<BusSchedules />} />
                   <Route path="events" element={<Events />} />
                   <Route path="support" element={<Support />} />
+                  <Route path="track" element={<BusTracking />} />
+                  <Route path="feedback" element={<Feedback />} />
+                  <Route path="preferences" element={<UserPreferences />} />
                 </Route>
               </Route>
             </Routes>

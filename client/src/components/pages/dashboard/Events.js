@@ -1,66 +1,68 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Form, Button, Badge } from 'react-bootstrap';
-import { 
-  FaSearch, 
-  FaCalendarAlt, 
-  FaMapMarkerAlt, 
-  FaClock, 
-  FaUsers, 
-  FaBus, 
-  FaInfoCircle 
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Form, Button, Badge, Alert, Spinner } from 'react-bootstrap';
+import {
+  FaSearch,
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaClock,
+  FaUsers,
+  FaBus,
+  FaInfoCircle
 } from 'react-icons/fa';
+import { eventService } from '../../../services';
 import './Events.css';
 
 const Events = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
-  
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: 'College Annual Day',
-      date: '2025-05-15',
-      time: '10:00 AM - 4:00 PM',
-      location: 'Main Auditorium',
-      description: 'Join us for the annual day celebration featuring cultural performances, awards ceremony, and more.',
-      type: 'cultural',
-      transportation: true,
-      image: 'https://via.placeholder.com/800x400'
-    },
-    {
-      id: 2,
-      title: 'Tech Symposium',
-      date: '2025-05-20',
-      time: '9:00 AM - 5:00 PM',
-      location: 'Engineering Block',
-      description: 'A technical symposium featuring workshops, paper presentations, and guest lectures from industry experts.',
-      type: 'academic',
-      transportation: true,
-      image: 'https://via.placeholder.com/800x400'
-    },
-    {
-      id: 3,
-      title: 'Sports Day',
-      date: '2025-06-05',
-      time: '8:00 AM - 6:00 PM',
-      location: 'College Grounds',
-      description: 'Annual sports day featuring various athletic competitions and team events.',
-      type: 'sports',
-      transportation: true,
-      image: 'https://via.placeholder.com/800x400'
-    },
-    {
-      id: 4,
-      title: 'Alumni Meet',
-      date: '2025-06-15',
-      time: '11:00 AM - 3:00 PM',
-      location: 'Conference Hall',
-      description: 'Connect with alumni and network with professionals from various industries.',
-      type: 'networking',
-      transportation: false,
-      image: 'https://via.placeholder.com/800x400'
-    }
-  ]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch events from API
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await eventService.getUpcomingEvents();
+
+        if (response.success && Array.isArray(response.data)) {
+          // Transform the data to match our UI needs
+          const formattedEvents = response.data.map(event => ({
+            id: event._id,
+            title: event.title,
+            date: event.date,
+            time: `${new Date(event.startTime).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })} - ${new Date(event.endTime).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })}`,
+            location: event.location,
+            description: event.description,
+            type: event.eventType || 'cultural', // Default to cultural if not specified
+            transportation: event.transportationAvailable || false,
+            image: event.image || 'https://via.placeholder.com/800x400'
+          }));
+
+          setEvents(formattedEvents);
+        } else {
+          setError('Failed to fetch events. Please try again later.');
+          console.error('Failed to fetch events:', response?.message);
+        }
+      } catch (error) {
+        setError('An error occurred while fetching events. Please try again later.');
+        console.error('Error fetching events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -72,9 +74,9 @@ const Events = () => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.location.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesFilter = filterType === 'all' || event.type === filterType;
-    
+
     return matchesSearch && matchesFilter;
   });
 
@@ -84,7 +86,13 @@ const Events = () => {
         <h1>Events</h1>
         <p className="text-muted">Discover upcoming events and transportation options</p>
       </div>
-      
+
+      {error && (
+        <Alert variant="danger" className="mb-4">
+          {error}
+        </Alert>
+      )}
+
       <Card className="mb-4">
         <Card.Body>
           <Form onSubmit={handleSearch}>
@@ -94,20 +102,20 @@ const Events = () => {
                   <Form.Label>Search</Form.Label>
                   <div className="search-input">
                     <FaSearch className="search-icon" />
-                    <Form.Control 
-                      type="text" 
-                      placeholder="Search events" 
+                    <Form.Control
+                      type="text"
+                      placeholder="Search events"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
                 </Form.Group>
               </Col>
-              
+
               <Col md={4} lg={3}>
                 <Form.Group className="mb-3 mb-md-0">
                   <Form.Label>Event Type</Form.Label>
-                  <Form.Select 
+                  <Form.Select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
                   >
@@ -119,13 +127,13 @@ const Events = () => {
                   </Form.Select>
                 </Form.Group>
               </Col>
-              
+
               <Col md={4} lg={2}>
                 <Button type="submit" variant="primary" className="w-100">
                   Search
                 </Button>
               </Col>
-              
+
               <Col md={4} lg={2}>
                 <Button variant="outline-primary" className="w-100">
                   <FaCalendarAlt className="me-2" />
@@ -136,50 +144,58 @@ const Events = () => {
           </Form>
         </Card.Body>
       </Card>
-      
-      <Row>
-        {filteredEvents.length > 0 ? (
-          filteredEvents.map(event => (
-            <Col key={event.id} lg={6} className="mb-4">
-              <Card className="event-card h-100">
-                <div className="event-image-container">
-                  <img src={event.image} alt={event.title} className="event-image" />
-                  <Badge 
-                    bg={
-                      event.type === 'cultural' ? 'primary' : 
-                      event.type === 'academic' ? 'info' : 
-                      event.type === 'sports' ? 'success' : 
-                      'secondary'
-                    } 
-                    className="event-badge"
-                  >
-                    {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
-                  </Badge>
-                </div>
+
+      {loading ? (
+        <div className="text-center my-5">
+          <Spinner animation="border" role="status" variant="primary">
+            <span className="visually-hidden">Loading events...</span>
+          </Spinner>
+          <p className="mt-2">Loading events...</p>
+        </div>
+      ) : (
+        <Row>
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map(event => (
+              <Col key={event.id} lg={6} className="mb-4">
+                <Card className="event-card h-100">
+                  <div className="event-image-container">
+                    <img src={event.image} alt={event.title} className="event-image" />
+                    <Badge
+                      bg={
+                        event.type === 'cultural' ? 'primary' :
+                        event.type === 'academic' ? 'info' :
+                        event.type === 'sports' ? 'success' :
+                        'secondary'
+                      }
+                      className="event-badge"
+                    >
+                      {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                    </Badge>
+                  </div>
                 <Card.Body>
                   <Card.Title className="event-title">{event.title}</Card.Title>
-                  
+
                   <div className="event-details">
                     <div className="event-detail">
                       <FaCalendarAlt className="event-icon" />
-                      <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
+                      <span>{new Date(event.date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
                       })}</span>
                     </div>
-                    
+
                     <div className="event-detail">
                       <FaClock className="event-icon" />
                       <span>{event.time}</span>
                     </div>
-                    
+
                     <div className="event-detail">
                       <FaMapMarkerAlt className="event-icon" />
                       <span>{event.location}</span>
                     </div>
-                    
+
                     {event.transportation && (
                       <div className="event-detail">
                         <FaBus className="event-icon" />
@@ -187,11 +203,11 @@ const Events = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <Card.Text className="event-description">
                     {event.description}
                   </Card.Text>
-                  
+
                   <div className="event-actions">
                     <Button variant="primary">
                       View Details
@@ -206,21 +222,22 @@ const Events = () => {
               </Card>
             </Col>
           ))
-        ) : (
-          <Col xs={12}>
-            <Card className="text-center py-5">
-              <Card.Body>
-                <div className="no-results">
-                  <FaCalendarAlt className="no-results-icon" />
-                  <h5>No events found</h5>
-                  <p>Try changing your search criteria</p>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        )}
-      </Row>
-      
+          ) : (
+            <Col xs={12}>
+              <Card className="text-center py-5">
+                <Card.Body>
+                  <div className="no-results">
+                    <FaCalendarAlt className="no-results-icon" />
+                    <h5>No events found</h5>
+                    <p>Try changing your search criteria</p>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          )}
+        </Row>
+      )}
+
       <div className="info-box">
         <div className="info-icon">
           <FaInfoCircle />

@@ -46,24 +46,6 @@ const busSchema = new mongoose.Schema({
         enum: ['active', 'maintenance', 'out_of_service', 'reserved'],
         default: 'active'
     },
-    features: {
-        airConditioned: {
-            type: Boolean,
-            default: true
-        },
-        wheelchairAccessible: {
-            type: Boolean,
-            default: false
-        },
-        wifiEnabled: {
-            type: Boolean,
-            default: false
-        },
-        usbCharging: {
-            type: Boolean,
-            default: false
-        }
-    },
     driver: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Driver'
@@ -80,13 +62,7 @@ const busSchema = new mongoose.Schema({
         default: 'diesel'
     },
     fuelEfficiency: {
-        type: Number // km per liter
-    },
-    manufacturingYear: {
         type: Number
-    },
-    model: {
-        type: String
     },
     currentLocation: {
         latitude: {
@@ -102,9 +78,7 @@ const busSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-// Indexes for efficient queries
 busSchema.index({ status: 1 });
-busSchema.index({ "features.wheelchairAccessible": 1 });
 
 const Bus = mongoose.model('Bus', busSchema);
 export default Bus;

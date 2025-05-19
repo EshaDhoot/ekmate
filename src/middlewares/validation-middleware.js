@@ -10,8 +10,8 @@ export const validateEmailOrPhone = async (req, res, next) => {
             .string()
             .notRequired()
             .matches(
-                /^[a-z]+@jietjodhpur\.ac\.in$/,
-                "Invalid email, Enter correct faculty/admin email."
+                /^([a-z]+\.\d{2}[a-z]{4}\d{3}@jietjodhpur\.ac\.in|[a-z]+@jietjodhpur\.ac\.in)$/,
+                "Invalid email. Please enter a valid email."
             ),
         phone_number: yup
             .string()
@@ -20,11 +20,11 @@ export const validateEmailOrPhone = async (req, res, next) => {
         password: yup
             .string()
             .required("Password is required")
-            .min(8, "Password must be at least 8 characters long")
-            .matches(
-                /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                "Password must contain at least one letter, one number, and one special character"
-            ),
+            // .min(8, "Password must be at least 8 characters long")
+            // .matches(
+            //     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+            //     "Password must contain at least one letter, one number, and one special character"
+            // ),
     });
 
     try {

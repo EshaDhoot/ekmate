@@ -32,7 +32,33 @@ export const createBus = async (req, res) => {
 
 export const getBus = async (req, res) => {
     try {
-        const buses = await busService.getAll();
+        const { route, busNumber } = req.query;
+
+        // Build filter object based on query parameters
+        let filter = {};
+
+        // If both route and busNumber are provided, use $or to search in either field
+        if (route && busNumber && route === busNumber) {
+            // If they're the same value, user is likely searching for either
+            filter = {
+                $or: [
+                    { title: { $regex: route, $options: 'i' } },
+                    { busNumber: { $regex: busNumber, $options: 'i' } },
+                    { 'routes.pickupPoint': { $regex: route, $options: 'i' } }
+                ]
+            };
+        } else {
+            // Handle individual filters
+            if (route) {
+                filter.title = { $regex: route, $options: 'i' }; // Case-insensitive search
+            }
+
+            if (busNumber) {
+                filter.busNumber = { $regex: busNumber, $options: 'i' }; // Case-insensitive search
+            }
+        }
+
+        const buses = await busService.getAll(filter);
         return res.status(200).json({
             data: buses,
             message: "fetched all buses successfully",

@@ -16,14 +16,10 @@ class UserPreferencesService {
             if (!user) {
                 throw new Error("user not found");
             }
-
-            // Check if preferences already exist for this user
             try {
                 await this.userPreferencesRepository.findByUserId(userId);
-                // If found, update the preferences
                 return await this.userPreferencesRepository.update(userId, payload);
             } catch (error) {
-                // If not found, create new preferences
                 if (error.message === "preferences not found") {
                     payload.userId = userId;
                     return await this.userPreferencesRepository.create(payload);

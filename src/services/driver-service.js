@@ -100,8 +100,6 @@ class DriverService {
             }
 
             const driver = await this.driverRepository.assignBus(driverId, busId);
-            
-            // Update the bus with the driver information
             await this.busRepository.update(busId, { driver: driverId });
             
             console.log("assignBus method called successfully from DriverService");

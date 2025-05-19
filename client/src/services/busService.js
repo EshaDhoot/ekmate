@@ -6,14 +6,23 @@ import axiosInstance from '../utils/axiosConfig';
 const busService = {
   /**
    * Get all buses
+   * @param {Object} params - Search parameters
+   * @param {string} params.route - Route to search for
+   * @param {string} params.busNumber - Bus number to search for
    * @returns {Promise} Promise with buses data
    */
-  getAllBuses: async () => {
+  getAllBuses: async (params = {}) => {
     try {
-      const response = await axiosInstance.get('/buses');
+      const response = await axiosInstance.get('/buses', { params });
+      // console.log('Raw API response:', response);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch buses' };
+      console.error('Error in getAllBuses:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch buses',
+        data: []
+      };
     }
   },
 
@@ -27,7 +36,12 @@ const busService = {
       const response = await axiosInstance.get(`/buses/${id}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch bus details' };
+      console.error('Error in getBusById:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch bus details',
+        data: null
+      };
     }
   },
 
@@ -41,7 +55,12 @@ const busService = {
       const response = await axiosInstance.get(`/gps-locations/buses/${busId}/latest`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch bus location' };
+      console.error('Error in getLatestLocation:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch bus location',
+        data: null
+      };
     }
   },
 
@@ -54,7 +73,12 @@ const busService = {
       const response = await axiosInstance.get('/gps-locations/active');
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch active locations' };
+      console.error('Error in getAllActiveLocations:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch active locations',
+        data: []
+      };
     }
   },
 
@@ -68,7 +92,12 @@ const busService = {
       const response = await axiosInstance.get(`/gps-locations/buses/${busId}/eta`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to calculate ETA' };
+      console.error('Error in calculateETA:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to calculate ETA',
+        data: null
+      };
     }
   }
 };

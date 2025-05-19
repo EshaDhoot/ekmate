@@ -1,16 +1,13 @@
 import express from 'express';
 const router = express.Router();
 
-// Import middlewares
 import { validateEmailOrPhone, validateOTP, validateSignIn } from '../../middlewares/validation-middleware.js';
 import { authenticateJWT, isAdmin } from '../../middlewares/auth-middleware.js';
 
-// Import controllers
 import { signUp, verifyOTP, signIn } from '../../controllers/user-controller.js';
 import { createBus, getBus, getBusById, updateBus, deleteBus } from '../../controllers/bus-controller.js';
 import { createQuery } from '../../controllers/contact-form-controller.js';
 
-// Import new controllers
 import {
     createLocation,
     getLatestLocation,
@@ -97,7 +94,6 @@ router.post('/auth/verify-otp', validateOTP, verifyOTP);
 router.post('/auth/sign-in', validateSignIn, signIn);
 
 // Driver authentication routes
-router.post('/driver/auth/sign-up', createDriver);
 router.post('/driver/auth/send-otp', sendOTP);
 router.post('/driver/auth/verify-otp', verifyDriverOTP);
 router.post('/driver/auth/sign-in', driverSignIn);
@@ -174,6 +170,7 @@ router.put('/maintenance/:id/complete', authenticateJWT, isAdmin, markMaintenanc
 router.post('/maintenance/buses/:busId/schedule', authenticateJWT, isAdmin, scheduleMaintenance);
 
 // Driver routes
+router.post('/drivers', authenticateJWT, isAdmin, createDriver); 
 router.get('/drivers/:id', authenticateJWT, getDriverById);
 router.get('/drivers', authenticateJWT, isAdmin, getAllDrivers);
 router.get('/drivers/active', authenticateJWT, isAdmin, getActiveDrivers);

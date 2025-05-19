@@ -4,7 +4,15 @@ const driverService = new DriverService();
 
 export const createDriver = async (req, res) => {
     try {
-        const driver = await driverService.create(req.body);
+        // Set isVerified to true for admin-created drivers
+        const driverData = {
+            ...req.body,
+            isVerified: true // Admin-created drivers are automatically verified
+        };
+
+        // Create the driver
+        const driver = await driverService.create(driverData);
+
         return res.status(201).json({
             data: driver,
             message: "Created a new driver successfully",
@@ -62,12 +70,12 @@ export const getDriverById = async (req, res) => {
 export const getAllDrivers = async (req, res) => {
     try {
         const { page, limit } = req.query;
-        
+
         const drivers = await driverService.getAllDrivers(
-            parseInt(page) || 1, 
+            parseInt(page) || 1,
             parseInt(limit) || 10
         );
-        
+
         return res.status(200).json({
             data: drivers,
             message: "Fetched all drivers successfully",
@@ -88,12 +96,12 @@ export const getAllDrivers = async (req, res) => {
 export const getActiveDrivers = async (req, res) => {
     try {
         const { page, limit } = req.query;
-        
+
         const drivers = await driverService.getActiveDrivers(
-            parseInt(page) || 1, 
+            parseInt(page) || 1,
             parseInt(limit) || 10
         );
-        
+
         return res.status(200).json({
             data: drivers,
             message: "Fetched active drivers successfully",
@@ -114,11 +122,11 @@ export const getActiveDrivers = async (req, res) => {
 export const getDriversWithExpiringLicenses = async (req, res) => {
     try {
         const { days } = req.query;
-        
+
         const drivers = await driverService.getDriversWithExpiringLicenses(
             parseInt(days) || 30
         );
-        
+
         return res.status(200).json({
             data: drivers,
             message: "Fetched drivers with expiring licenses successfully",
@@ -177,7 +185,7 @@ export const assignBus = async (req, res) => {
     try {
         const { id } = req.params;
         const { busId } = req.body;
-        
+
         if (!busId) {
             return res.status(400).json({
                 data: {},
@@ -186,7 +194,7 @@ export const assignBus = async (req, res) => {
                 success: false
             });
         }
-        
+
         const driver = await driverService.assignBus(id, busId);
         return res.status(200).json({
             data: driver,

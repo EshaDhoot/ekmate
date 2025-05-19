@@ -53,7 +53,7 @@ const driverSchema = new mongoose.Schema({
         default: true
     },
     drivingExperience: {
-        type: Number, // in years
+        type: Number,
         default: 0
     },
     rating: {
@@ -80,7 +80,7 @@ const driverSchema = new mongoose.Schema({
         }
     }],
     documents: [{
-        type: String, // URLs to documents stored in cloud storage
+        type: String,
         description: String
     }],
     isVerified: {
@@ -92,11 +92,7 @@ const driverSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-// Indexes for efficient queries
-driverSchema.index({ isActive: 1 });
-driverSchema.index({ licenseExpiry: 1 });
 
-// Hash password before saving
 driverSchema.pre('save', async function(next) {
     if (this.isModified('password')) {
         this.password = await argon2.hash(this.password);
@@ -104,12 +100,10 @@ driverSchema.pre('save', async function(next) {
     next();
 });
 
-// Method to compare password
 driverSchema.methods.comparePassword = async function compare(password) {
     return await argon2.verify(this.password, password);
 };
 
-// Method to generate JWT
 driverSchema.methods.genJWT = function generate() {
     return jwt.sign(
         { id: this._id, email: this.email, role: 'driver' },
@@ -118,7 +112,6 @@ driverSchema.methods.genJWT = function generate() {
     );
 };
 
-// Static method to get drivers with expiring licenses
 driverSchema.statics.getDriversWithExpiringLicenses = async function(days = 30) {
     const today = new Date();
     const futureDate = new Date();

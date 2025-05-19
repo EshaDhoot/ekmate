@@ -12,13 +12,27 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check if user is logged in on page load
-    const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
 
-    if (user && token) {
-      setCurrentUser(JSON.parse(user));
-      // We don't need to set default headers here as our axiosInstance
-      // will handle this in its request interceptor
+    if (token) {
+      try {
+        // Decode the JWT token to get user information
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        const user = JSON.parse(jsonPayload);
+        setCurrentUser(user);
+
+        // We don't need to set default headers here as our axiosInstance
+        // will handle this in its request interceptor
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        // If token is invalid, remove it
+        localStorage.removeItem('token');
+      }
     }
 
     setLoading(false);
@@ -44,9 +58,8 @@ export const AuthProvider = ({ children }) => {
 
         const user = JSON.parse(jsonPayload);
 
-        // Store user data and token
+        // Store only the token in localStorage
         localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
 
         // Set default authorization header
         axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -67,7 +80,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('user');
+    // Only need to remove the token
     localStorage.removeItem('token');
     // No need to delete headers as axiosInstance handles this
     setCurrentUser(null);

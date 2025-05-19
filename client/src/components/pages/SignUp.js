@@ -87,7 +87,7 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post('/ekmate/api/v1/auth/verify-otp', {
+      const response = await axiosInstance.post('/auth/verify-otp', {
         email: formData.email,
         otp: otp
       });
@@ -253,7 +253,6 @@ const SignUp = () => {
                       >
                         <option value="student">Student</option>
                         <option value="faculty">Faculty</option>
-                        <option value="admin">Admin</option>
                       </Form.Select>
                     </Form.Group>
 

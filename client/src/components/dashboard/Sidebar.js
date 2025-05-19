@@ -1,11 +1,14 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  FaHome, 
-  FaBus, 
-  FaCalendarAlt, 
-  FaQuestionCircle, 
-  FaSignOutAlt 
+import {
+  FaHome,
+  FaBus,
+  FaCalendarAlt,
+  FaQuestionCircle,
+  FaSignOutAlt,
+  FaMapMarkerAlt,
+  FaComments,
+  FaCog
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import './Sidebar.css';
@@ -26,9 +29,24 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       icon: <FaBus />
     },
     {
+      path: '/dashboard/track',
+      name: 'Track Bus',
+      icon: <FaMapMarkerAlt />
+    },
+    {
       path: '/dashboard/events',
       name: 'Events',
       icon: <FaCalendarAlt />
+    },
+    {
+      path: '/dashboard/feedback',
+      name: 'Feedback',
+      icon: <FaComments />
+    },
+    {
+      path: '/dashboard/preferences',
+      name: 'Preferences',
+      icon: <FaCog />
     },
     {
       path: '/dashboard/support',
@@ -49,12 +67,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           &times;
         </button>
       </div>
-      
+
       <div className="sidebar-menu">
         {menuItems.map((item, index) => (
-          <Link 
-            key={index} 
-            to={item.path} 
+          <Link
+            key={index}
+            to={item.path}
             className={`sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
             onClick={() => window.innerWidth < 992 && toggleSidebar()}
           >
@@ -63,7 +81,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           </Link>
         ))}
       </div>
-      
+
       <div className="sidebar-footer">
         <button className="logout-button" onClick={handleLogout}>
           <FaSignOutAlt />
