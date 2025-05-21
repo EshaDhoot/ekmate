@@ -2,6 +2,7 @@ import UserService from "../services/user-service.js";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { verifyHashedOTP } from "../helpers/OTP-helper.js";
 
 const userService = new UserService();
 
