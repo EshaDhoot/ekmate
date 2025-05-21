@@ -23,19 +23,36 @@ const DashboardHome = () => {
 
         // Fetch buses
         const busesResponse = await busService.getAllBuses();
-        if (busesResponse.success) {
-          // Check if response.data is an array, if not, use an empty array
-          const busesData = Array.isArray(busesResponse.data) ? busesResponse.data : [];
+        console.log('Buses API Response:', busesResponse);
 
-          if (busesData.length > 0) {
+        if (busesResponse.success) {
+          // Check if response.data contains buses property (pagination structure)
+          const busesData = busesResponse.data.buses || busesResponse.data;
+          console.log('Buses data extracted:', busesData);
+
+          if (Array.isArray(busesData) && busesData.length > 0) {
             // Transform the data to match our UI needs
-            const buses = busesData.map(bus => ({
-              id: bus._id,
-              route: bus.route || 'Unknown Route',
-              departureTime: bus.departureTime || 'TBD',
-              status: bus.status || 'On Time',
-              availableSeats: bus.capacity || 0
-            }));
+            const buses = busesData.map(bus => {
+              console.log('Processing bus:', bus);
+              // Get the first route's pickup point as the route name if available
+              const routeName = bus.routes && bus.routes.length > 0
+                ? `${bus.routes[0].pickupPoint} to ${bus.destination}`
+                : bus.title || 'Unknown Route';
+
+              // Get the first route's time as departure time if available
+              const departureTime = bus.routes && bus.routes.length > 0
+                ? bus.routes[0].time
+                : 'TBD';
+
+              return {
+                id: bus._id,
+                route: routeName,
+                departureTime: departureTime,
+                status: bus.status || 'On Time',
+                availableSeats: bus.capacity - (bus.currentPassengers || 0)
+              };
+            });
+            console.log('Transformed buses:', buses);
             setUpcomingBuses(buses.slice(0, 3)); // Show only first 3 buses
           } else {
             setUpcomingBuses([]);
@@ -48,29 +65,43 @@ const DashboardHome = () => {
 
         // Fetch upcoming events
         const eventsResponse = await eventService.getUpcomingEvents();
-        if (eventsResponse.success && Array.isArray(eventsResponse.data)) {
-          // Transform the data to match our UI needs
-          const events = eventsResponse.data.map(event => ({
-            id: event._id,
-            title: event.title,
-            date: new Date(event.date).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }),
-            location: event.location,
-            time: `${new Date(event.startTime).toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })} - ${new Date(event.endTime).toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })}`
-          }));
-          setUpcomingEvents(events.slice(0, 2)); // Show only first 2 events
+        console.log('Events API Response:', eventsResponse);
+
+        if (eventsResponse.success && eventsResponse.data) {
+          // Check if the data is in the expected format with events property
+          const eventsData = eventsResponse.data.events || eventsResponse.data;
+
+          if (Array.isArray(eventsData) && eventsData.length > 0) {
+            // Transform the data to match our UI needs
+            const events = eventsData.map(event => {
+              console.log('Processing event:', event);
+              return {
+                id: event._id,
+                title: event.eventName, // Changed from title to eventName based on the model
+                date: new Date(event.startDate).toLocaleDateString('en-US', { // Changed from date to startDate
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }),
+                location: event.location,
+                time: `${new Date(event.startDate).toLocaleTimeString('en-US', { // Changed from startTime to startDate
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })} - ${new Date(event.endDate).toLocaleTimeString('en-US', { // Changed from endTime to endDate
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}`
+              };
+            });
+            console.log('Transformed events:', events);
+            setUpcomingEvents(events.slice(0, 2)); // Show only first 2 events
+          } else {
+            setUpcomingEvents([]);
+            console.error('No events found in the response data');
+          }
         } else {
           setUpcomingEvents([]);
-          console.error('Failed to fetch upcoming events:', eventsResponse?.message);
+          console.error('Failed to fetch upcoming events or no events found:', eventsResponse?.message);
         }
 
         // Fetch active bus locations
@@ -151,31 +182,31 @@ const DashboardHome = () => {
                 <Card.Body className="p-0">
                   {upcomingBuses.length === 0 ? (
                     <div className="p-4 text-center">
-                      <p className="text-muted">No upcoming buses available</p>
+                      <p className="no-results">No upcoming buses available</p>
                     </div>
                   ) : (
                     <div className="table-responsive">
-                      <table className="table table-hover mb-0">
+                      <table className="table table-hover mb-0 bus-table">
                         <thead>
                           <tr>
-                            <th>Route</th>
-                            <th>Departure</th>
-                            <th>Status</th>
-                            <th>Available Seats</th>
-                            <th>Action</th>
+                            <th style={{color: 'inherit'}}>Route</th>
+                            <th style={{color: 'inherit'}}>Departure</th>
+                            <th style={{color: 'inherit'}}>Status</th>
+                            <th style={{color: 'inherit'}}>Available Seats</th>
+                            <th style={{color: 'inherit'}}>Action</th>
                           </tr>
                         </thead>
                         <tbody>
                           {upcomingBuses.map(bus => (
                             <tr key={bus.id}>
-                              <td>{bus.route}</td>
-                              <td>{bus.departureTime}</td>
+                              <td style={{color: 'inherit'}}>{bus.route}</td>
+                              <td style={{color: 'inherit'}}>{bus.departureTime}</td>
                               <td>
                                 <span className={`status-badge ${bus.status.includes('Delayed') ? 'delayed' : 'on-time'}`}>
                                   {bus.status}
                                 </span>
                               </td>
-                              <td>{bus.availableSeats}</td>
+                              <td style={{color: 'inherit'}}>{bus.availableSeats}</td>
                               <td>
                                 <Button variant="primary" size="sm">Reserve</Button>
                               </td>
@@ -202,7 +233,7 @@ const DashboardHome = () => {
                 <Card.Body className="p-0">
                   {upcomingEvents.length === 0 ? (
                     <div className="p-4 text-center">
-                      <p className="text-muted">No upcoming events available</p>
+                      <p className="no-results">No upcoming events available</p>
                     </div>
                   ) : (
                     upcomingEvents.map(event => (
@@ -276,7 +307,7 @@ const DashboardHome = () => {
                   <div className="activity-list">
                     {recentActivity.length === 0 ? (
                       <div className="p-4 text-center">
-                        <p className="text-muted">No recent activity</p>
+                        <p className="no-results">No recent activity</p>
                       </div>
                     ) : (
                       recentActivity.map(activity => (

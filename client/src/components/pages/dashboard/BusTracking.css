@@ -10,6 +10,16 @@
   align-items: center;
 }
 
+/* Dark mode fixes for page header */
+.dark-theme .page-header h1 {
+  color: #ffffff !important;
+}
+
+.dark-theme .page-header p,
+.dark-theme .tracking-subtitle {
+  color: #b0b0b0 !important;
+}
+
 .tracking-card {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   border: none;
@@ -21,6 +31,22 @@
   background-color: #f8f9fa;
   border-bottom: 1px solid #eee;
   padding: 1rem 1.25rem;
+}
+
+/* Dark mode fixes for tracking card */
+.dark-theme .tracking-card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .tracking-card .card-header {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.dark-theme .tracking-card .card-header h5 {
+  color: #ffffff !important;
 }
 
 .bus-info {
@@ -56,6 +82,17 @@
   color: #333;
 }
 
+/* Dark mode fixes for info items */
+.dark-theme .info-item strong,
+.dark-theme .form-label,
+.dark-theme strong {
+  color: #ffffff !important;
+}
+
+.dark-theme .info-item p {
+  color: #e0e0e0 !important;
+}
+
 .eta-info {
   background-color: #f8f9fa;
   border-radius: 8px;
@@ -68,8 +105,21 @@
   color: #333;
 }
 
+/* Dark mode fixes for ETA info */
+.dark-theme .eta-info {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .eta-info h6 {
+  color: #ffffff !important;
+}
+
 .eta-destination {
   margin-bottom: 0.5rem;
+}
+
+.dark-theme .eta-destination strong {
+  color: #ffffff !important;
 }
 
 .eta-time {
@@ -85,6 +135,10 @@
   color: #666;
 }
 
+.dark-theme .eta-distance {
+  color: #b0b0b0 !important;
+}
+
 .map-placeholder {
   height: 100%;
   min-height: 400px;
@@ -95,6 +149,12 @@
   background-color: #f8f9fa;
   padding: 2rem;
   text-align: center;
+}
+
+/* Dark mode fixes for map placeholder */
+.dark-theme .map-placeholder {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #e0e0e0;
 }
 
 .map-info {
@@ -109,6 +169,21 @@
 
 .map-info p {
   margin-bottom: 0.5rem;
+}
+
+/* Dark mode fixes for map info */
+.dark-theme .map-info {
+  background-color: var(--card-bg-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark-theme .map-info p {
+  color: #e0e0e0 !important;
+}
+
+.dark-theme .text-muted,
+.dark-theme .map-note {
+  color: #b0b0b0 !important;
 }
 
 @media (max-width: 992px) {

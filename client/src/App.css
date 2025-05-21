@@ -48,9 +48,19 @@ body.dark-theme {
   background-color: var(--background-dark);
 }
 
+/* Global dark theme text fix */
+.dark-theme * {
+  color: var(--text-dark);
+}
+
 /* Ensure text is visible in dark mode */
+/* Ensure text-muted and other text classes are visible in dark mode */
 .dark-theme .text-muted,
-.dark-theme .text-secondary {
+.dark-theme .text-secondary,
+.dark-theme .activity-content p,
+.dark-theme .activity-time,
+.dark-theme .event-detail,
+.dark-theme .no-results p {
   color: #b0b0b0 !important;
 }
 
@@ -81,6 +91,13 @@ body.dark-theme {
 .dark-theme .notification-dropdown,
 .dark-theme .profile-dropdown {
   background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+}
+
+.dark-theme .card-header,
+.dark-theme .card-footer {
+  background-color: rgba(0, 0, 0, 0.2);
   border-color: var(--border-dark);
   color: var(--text-dark);
 }
@@ -193,6 +210,61 @@ body.dark-theme {
   filter: invert(1);
 }
 
+/* Dashboard tables in dark mode */
+.dark-theme table.table,
+.dark-theme .table {
+  color: #ffffff !important;
+}
+
+.dark-theme table.table thead th,
+.dark-theme .table thead th {
+  border-color: var(--border-dark);
+  color: #ffffff !important;
+}
+
+.dark-theme table.table tbody td,
+.dark-theme .table tbody td {
+  border-color: var(--border-dark);
+  color: #ffffff !important;
+}
+
+.dark-theme table.table-hover tbody tr:hover,
+.dark-theme .table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Force table text to be white in dark mode */
+.dark-theme table,
+.dark-theme th,
+.dark-theme td,
+.dark-theme tr {
+  color: #ffffff !important;
+}
+
+/* Fix stop-item in dark mode */
+.dark-theme .stop-item {
+  background-color: #2d2d2d;
+  color: var(--text-dark);
+}
+
+/* Fix badge colors in dark mode */
+.dark-theme .badge.bg-primary {
+  background-color: var(--primary-dark) !important;
+}
+
+/* Fix icon colors in dark mode */
+.dark-theme .text-primary {
+  color: var(--primary-dark) !important;
+}
+
+.dark-theme .text-success {
+  color: #4caf50 !important;
+}
+
+.dark-theme .search-icon {
+  color: #b0b0b0;
+}
+
 /* Force text to be visible in dark mode */
 .dark-theme .text-dark {
   color: #f8f9fa !important;
@@ -201,6 +273,53 @@ body.dark-theme {
 /* Fix for Bootstrap dark text */
 .dark-theme .text-body {
   color: #f8f9fa !important;
+}
+
+/* Fix for BusTracking page */
+.dark-theme .tracking-card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+}
+
+.dark-theme .map-placeholder {
+  background-color: #2d2d2d;
+  color: var(--text-dark);
+}
+
+.dark-theme .map-info p {
+  color: var(--text-dark) !important;
+}
+
+.dark-theme .bus-info .info-item strong,
+.dark-theme .bus-info .info-item p,
+.dark-theme .eta-info h6,
+.dark-theme .eta-destination strong,
+.dark-theme .eta-time span,
+.dark-theme .eta-distance span {
+  color: var(--text-dark) !important;
+}
+
+/* Fix for Events page */
+.dark-theme .event-card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+}
+
+.dark-theme .event-card .card-title,
+.dark-theme .event-card .card-text,
+.dark-theme .event-meta {
+  color: var(--text-dark) !important;
+}
+
+/* Fix for Support page */
+.dark-theme .faq-item {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+}
+
+.dark-theme .faq-question,
+.dark-theme .faq-answer {
+  color: var(--text-dark) !important;
 }
 
 /* Auth pages dark mode styles */
@@ -286,10 +405,23 @@ body.dark-theme {
 }
 
 .dark-theme .form-control,
-.dark-theme .form-select {
+.dark-theme .form-select,
+.dark-theme .form-check-input,
+.dark-theme .input-group-text {
   background-color: #2d2d2d;
   border-color: #444;
   color: var(--text-dark);
+}
+
+.dark-theme .form-check-input:checked {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.dark-theme .form-label,
+.dark-theme .form-check-label,
+.dark-theme .form-text {
+  color: var(--text-dark) !important;
 }
 
 /* Fix placeholder color in dark mode */
@@ -492,4 +624,39 @@ body.dark-theme {
   .section-title {
     font-size: 2rem;
   }
+}
+
+/* Fix for Feedback page */
+.dark-theme .feedback-card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+}
+
+.dark-theme .feedback-card .card-title,
+.dark-theme .feedback-card .card-text,
+.dark-theme .feedback-meta,
+.dark-theme .rating-label,
+.dark-theme .feedback-type-label {
+  color: var(--text-dark) !important;
+}
+
+/* Fix for UserPreferences page */
+.dark-theme .preferences-card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+}
+
+.dark-theme .preferences-card .card-title,
+.dark-theme .preferences-card .card-text,
+.dark-theme .preference-label,
+.dark-theme .preference-value,
+.dark-theme .form-check-label {
+  color: var(--text-dark) !important;
+}
+
+/* Fix for list groups in dark mode */
+.dark-theme .list-group-item {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
 }

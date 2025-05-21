@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Form, Button, Accordion } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Form, Button, Accordion, Alert } from 'react-bootstrap';
 import {
   FaQuestionCircle,
   FaEnvelope,
   FaPhone,
   FaComments,
-  FaSearch,
   FaFileAlt,
   FaExclamationTriangle,
   FaCheckCircle,
@@ -13,15 +12,52 @@ import {
   FaCalendarAlt
 } from 'react-icons/fa';
 import './Support.css';
+import axiosInstance from '../../../utils/axiosConfig';
+import { useAuth } from '../../../context/AuthContext';
 
 const Support = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const { currentUser } = useAuth();
+
   const [supportForm, setSupportForm] = useState({
-    subject: '',
-    message: '',
-    type: 'question'
+    name: '',
+    email: '',
+    role: 'student',
+    message: ''
   });
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formStatus, setFormStatus] = useState({
+    submitted: false,
+    success: false,
+    message: ''
+  });
+
+  // Use the current user data from the auth context
+  useEffect(() => {
+    if (currentUser) {
+      // Get the token from localStorage
+      const token = localStorage.getItem('token');
+
+      if (token) {
+        try {
+          // Decode the JWT token to get user information
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+
+          const userData = JSON.parse(jsonPayload);
+
+          // Set the email from the token
+          setSupportForm(prevForm => ({
+            ...prevForm,
+            email: userData.email || ''
+          }));
+        } catch (error) {
+          console.error('Error decoding token:', error);
+        }
+      }
+    }
+  }, [currentUser]);
 
   const faqs = [
     {
@@ -51,12 +87,6 @@ const Support = () => {
     }
   ];
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // In a real app, you would filter the FAQs based on the search query
-    console.log('Searching for:', searchQuery);
-  };
-
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setSupportForm(prev => ({
@@ -65,33 +95,53 @@ const Support = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, you would submit the form to your backend
-    console.log('Support form submitted:', supportForm);
-    setFormSubmitted(true);
 
-    // Reset form after submission
-    setTimeout(() => {
-      setSupportForm({
-        subject: '',
-        message: '',
-        type: 'question'
+    try {
+      // Create form data to submit
+      const formData = {
+        email: supportForm.email || '',
+        role: supportForm.role || 'student',
+        message: supportForm.message || ''
+      };
+
+      const response = await axiosInstance.post('/contact-form-query', formData);
+
+      if (response.data.success) {
+        setFormStatus({
+          submitted: true,
+          success: true,
+          message: 'Thank you for your message!'
+        });
+
+        // Reset only the message field after submission
+        setSupportForm(prevForm => ({
+          ...prevForm,
+          message: ''
+        }));
+      } else {
+        setFormStatus({
+          submitted: true,
+          success: false,
+          message: 'There was an error submitting your message. Please try again.'
+        });
+      }
+    } catch (error) {
+      setFormStatus({
+        submitted: true,
+        success: false,
+        message: 'There was an error submitting your message. Please try again.'
       });
-      setFormSubmitted(false);
-    }, 5000);
+      console.error('Error submitting contact form:', error);
+    }
   };
-
-  const filteredFaqs = faqs.filter(faq =>
-    faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <Container fluid>
       <div className="page-header">
         <h1>Help & Support</h1>
-        <p className="text-muted">Get help with EKmate bus management system</p>
+        <p className="support-subtitle">Get help with EKmate bus management system</p>
       </div>
 
       <Row>
@@ -104,38 +154,18 @@ const Support = () => {
               </h5>
             </Card.Header>
             <Card.Body>
-              <Form onSubmit={handleSearch} className="mb-4">
-                <div className="search-input">
-                  <FaSearch className="search-icon" />
-                  <Form.Control
-                    type="text"
-                    placeholder="Search FAQs"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-              </Form>
-
-              {filteredFaqs.length > 0 ? (
-                <Accordion defaultActiveKey="0">
-                  {filteredFaqs.map((faq, index) => (
-                    <Accordion.Item key={faq.id} eventKey={index.toString()}>
-                      <Accordion.Header>
-                        <span className="faq-question">{faq.question}</span>
-                      </Accordion.Header>
-                      <Accordion.Body>
-                        <p className="faq-answer">{faq.answer}</p>
-                      </Accordion.Body>
-                    </Accordion.Item>
-                  ))}
-                </Accordion>
-              ) : (
-                <div className="no-results">
-                  <FaQuestionCircle className="no-results-icon" />
-                  <h5>No FAQs found</h5>
-                  <p>Try changing your search query</p>
-                </div>
-              )}
+              <Accordion defaultActiveKey="0">
+                {faqs.map((faq, index) => (
+                  <Accordion.Item key={faq.id} eventKey={index.toString()}>
+                    <Accordion.Header>
+                      <span className="faq-question">{faq.question}</span>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <p className="faq-answer">{faq.answer}</p>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                ))}
+              </Accordion>
             </Card.Body>
           </Card>
 
@@ -217,40 +247,41 @@ const Support = () => {
               </h5>
             </Card.Header>
             <Card.Body>
-              {formSubmitted ? (
+              {formStatus.submitted && (
+                <Alert
+                  variant={formStatus.success ? "success" : "danger"}
+                  className="mb-4"
+                >
+                  {formStatus.message}
+                </Alert>
+              )}
+
+              {formStatus.submitted && formStatus.success ? (
                 <div className="form-success">
                   <FaCheckCircle className="success-icon" />
                   <h5>Thank you for contacting us!</h5>
-                  <p>We've received your message and will get back to you soon.</p>
+                  <p>We've received your message.</p>
                 </div>
               ) : (
                 <Form onSubmit={handleSubmit}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Issue Type</Form.Label>
-                    <Form.Select
-                      name="type"
-                      value={supportForm.type}
-                      onChange={handleFormChange}
-                      required
-                    >
-                      <option value="question">General Question</option>
-                      <option value="technical">Technical Issue</option>
-                      <option value="feedback">Feedback</option>
-                      <option value="complaint">Complaint</option>
-                    </Form.Select>
-                  </Form.Group>
+                  <div className="mb-3 p-3 contact-info-box rounded">
+                    <small className="contact-info-text">Your contact information is automatically filled from your account.</small>
+                    <div className="mt-2">
+                      <strong>Email:</strong> <span className="contact-email">{supportForm.email || 'Not available'}</span>
+                    </div>
+                  </div>
 
-                  <Form.Group className="mb-3">
-                    <Form.Label>Subject</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="subject"
-                      value={supportForm.subject}
-                      onChange={handleFormChange}
-                      placeholder="Enter subject"
-                      required
-                    />
-                  </Form.Group>
+                  <input
+                    type="hidden"
+                    name="email"
+                    value={supportForm.email}
+                  />
+
+                  <input
+                    type="hidden"
+                    name="role"
+                    value={supportForm.role}
+                  />
 
                   <Form.Group className="mb-3">
                     <Form.Label>Message</Form.Label>

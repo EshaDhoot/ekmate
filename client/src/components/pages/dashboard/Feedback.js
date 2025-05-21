@@ -17,8 +17,10 @@ const Feedback = () => {
   const [formData, setFormData] = useState({
     busId: '',
     rating: 0,
-    comment: '',
-    category: 'general'
+    comments: '',
+    feedbackType: 'general',
+    tripDate: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+    isAnonymous: false
   });
 
   // Fetch buses and user feedback
@@ -31,8 +33,8 @@ const Feedback = () => {
         // Fetch buses
         const busesResponse = await busService.getAllBuses();
         if (busesResponse.success) {
-          // Check if response.data is an array, if not, use an empty array
-          const busesData = Array.isArray(busesResponse.data) ? busesResponse.data : [];
+          // Check if response.data.buses is an array, if not, use an empty array
+          const busesData = busesResponse.data && busesResponse.data.buses ? busesResponse.data.buses : [];
 
           if (busesData.length > 0) {
             setBuses(busesData);
@@ -50,8 +52,18 @@ const Feedback = () => {
         if (currentUser && currentUser.id) {
           try {
             const feedbackResponse = await feedbackService.getFeedbackByUserId(currentUser.id);
-            if (feedbackResponse && feedbackResponse.success && Array.isArray(feedbackResponse.data)) {
-              setUserFeedback(feedbackResponse.data);
+            if (feedbackResponse && feedbackResponse.success) {
+              // Check if the data is in the expected format
+              if (Array.isArray(feedbackResponse.data)) {
+                setUserFeedback(feedbackResponse.data);
+              } else if (feedbackResponse.data && feedbackResponse.data.feedback && Array.isArray(feedbackResponse.data.feedback)) {
+                // If the data is nested in a 'feedback' property
+                setUserFeedback(feedbackResponse.data.feedback);
+              } else {
+                // If the data is not in the expected format, set an empty array
+                setUserFeedback([]);
+                console.error('Feedback data is not in the expected format:', feedbackResponse.data);
+              }
             } else {
               setUserFeedback([]);
               console.error('Failed to fetch user feedback:', feedbackResponse?.message);
@@ -124,15 +136,27 @@ const Feedback = () => {
         setFormData({
           busId: '',
           rating: 0,
-          comment: '',
-          category: 'general'
+          comments: '',
+          feedbackType: 'general',
+          tripDate: new Date().toISOString().split('T')[0],
+          isAnonymous: false
         });
 
         // Refresh user feedback
         if (currentUser && currentUser.id) {
           const feedbackResponse = await feedbackService.getFeedbackByUserId(currentUser.id);
           if (feedbackResponse.success) {
-            setUserFeedback(feedbackResponse.data);
+            // Check if the data is in the expected format
+            if (Array.isArray(feedbackResponse.data)) {
+              setUserFeedback(feedbackResponse.data);
+            } else if (feedbackResponse.data && feedbackResponse.data.feedback && Array.isArray(feedbackResponse.data.feedback)) {
+              // If the data is nested in a 'feedback' property
+              setUserFeedback(feedbackResponse.data.feedback);
+            } else {
+              // If the data is not in the expected format, set an empty array
+              setUserFeedback([]);
+              console.error('Feedback data is not in the expected format:', feedbackResponse.data);
+            }
           }
         }
       } else {
@@ -180,7 +204,7 @@ const Feedback = () => {
           <FaComments className="me-2" />
           Feedback
         </h1>
-        <p className="text-muted">Share your experience and help us improve our services</p>
+        <p className="feedback-subtitle">Share your experience and help us improve our services</p>
       </div>
 
       {error && (
@@ -222,7 +246,7 @@ const Feedback = () => {
                       <option value="">-- Select a bus --</option>
                       {buses.map(bus => (
                         <option key={bus._id} value={bus._id}>
-                          {bus.busNumber} - {bus.route || 'No route assigned'}
+                          {bus.busNumber} - {bus.title || 'No route assigned'}
                         </option>
                       ))}
                     </Form.Select>
@@ -236,18 +260,31 @@ const Feedback = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-3">
-                    <Form.Label>Category</Form.Label>
-                    <Form.Select
-                      name="category"
-                      value={formData.category}
+                    <Form.Label>Trip Date</Form.Label>
+                    <Form.Control
+                      type="date"
+                      name="tripDate"
+                      value={formData.tripDate}
                       onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label>Feedback Type</Form.Label>
+                    <Form.Select
+                      name="feedbackType"
+                      value={formData.feedbackType}
+                      onChange={handleChange}
+                      required
                     >
                       <option value="general">General</option>
                       <option value="cleanliness">Cleanliness</option>
                       <option value="punctuality">Punctuality</option>
                       <option value="driver">Driver</option>
-                      <option value="comfort">Comfort</option>
+                      <option value="mechanical">Mechanical</option>
                       <option value="safety">Safety</option>
+                      <option value="other">Other</option>
                     </Form.Select>
                   </Form.Group>
 
@@ -256,10 +293,24 @@ const Feedback = () => {
                     <Form.Control
                       as="textarea"
                       rows={4}
-                      name="comment"
-                      value={formData.comment}
+                      name="comments"
+                      value={formData.comments}
                       onChange={handleChange}
                       placeholder="Share your experience or suggestions..."
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Check
+                      type="checkbox"
+                      id="isAnonymous"
+                      name="isAnonymous"
+                      checked={formData.isAnonymous}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        isAnonymous: e.target.checked
+                      }))}
+                      label="Submit feedback anonymously"
                     />
                   </Form.Group>
 
@@ -296,13 +347,13 @@ const Feedback = () => {
                 <h5 className="mb-0">Your Previous Feedback</h5>
               </Card.Header>
               <Card.Body className="p-0">
-                {userFeedback.length === 0 ? (
+                {Array.isArray(userFeedback) && userFeedback.length === 0 ? (
                   <div className="text-center p-4">
-                    <p className="text-muted">You haven't submitted any feedback yet.</p>
+                    <p className="no-results">You haven't submitted any feedback yet.</p>
                   </div>
                 ) : (
                   <div className="feedback-list">
-                    {userFeedback.map(feedback => {
+                    {Array.isArray(userFeedback) && userFeedback.map(feedback => {
                       const bus = buses.find(b => b._id === feedback.busId);
 
                       return (
@@ -311,14 +362,14 @@ const Feedback = () => {
                             <div>
                               <h6>
                                 <FaBus className="me-2" />
-                                {bus ? `${bus.busNumber} - ${bus.route || 'No route'}` : 'Unknown Bus'}
+                                {bus ? `${bus.busNumber} - ${bus.title || 'No route'}` : 'Unknown Bus'}
                               </h6>
                               <div className="feedback-meta">
                                 <span className="feedback-date">
                                   {new Date(feedback.createdAt).toLocaleDateString()}
                                 </span>
                                 <Badge bg="secondary" className="ms-2">
-                                  {feedback.category}
+                                  {feedback.feedbackType}
                                 </Badge>
                               </div>
                             </div>
@@ -327,15 +378,15 @@ const Feedback = () => {
                             </div>
                           </div>
 
-                          <p className="feedback-comment">{feedback.comment}</p>
+                          <p className="feedback-comment">{feedback.comments}</p>
 
-                          {feedback.response && (
+                          {feedback.adminResponse && (
                             <div className="feedback-response">
                               <div className="response-header">
                                 <FaCheck className="me-2" />
                                 <span>Response from Admin</span>
                               </div>
-                              <p>{feedback.response}</p>
+                              <p>{feedback.adminResponse}</p>
                             </div>
                           )}
                         </div>

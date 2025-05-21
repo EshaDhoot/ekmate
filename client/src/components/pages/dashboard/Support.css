@@ -6,44 +6,23 @@
   color: #6c757d;
 }
 
-.search-input {
-  position: relative;
-  margin-bottom: 20px;
+/* Dark mode fixes for page header */
+.dark-theme .page-header h1 {
+  color: #ffffff !important;
 }
 
-.search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6c757d;
+.dark-theme .page-header p,
+.dark-theme .support-subtitle {
+  color: #b0b0b0 !important;
 }
 
-.search-input .form-control {
-  padding-left: 35px;
+/* Dark mode fixes for FAQ */
+.dark-theme .faq-question {
+  color: #ffffff !important;
 }
 
-.no-results {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px 0;
-}
-
-.no-results-icon {
-  font-size: 48px;
-  color: #dee2e6;
-  margin-bottom: 20px;
-}
-
-.no-results h5 {
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.no-results p {
-  color: #6c757d;
+.dark-theme .faq-answer {
+  color: #e0e0e0 !important;
 }
 
 .guide-link {
@@ -64,6 +43,15 @@
 .guide-item:hover {
   background-color: rgba(0, 86, 179, 0.05);
   transform: translateY(-3px);
+}
+
+/* Dark mode fixes for guide items */
+.dark-theme .guide-item {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .guide-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .guide-icon {
@@ -88,6 +76,15 @@
   margin-bottom: 0;
   font-size: 14px;
   color: #6c757d;
+}
+
+/* Dark mode fixes for guide content */
+.dark-theme .guide-content h6 {
+  color: #ffffff !important;
+}
+
+.dark-theme .guide-content p {
+  color: #b0b0b0 !important;
 }
 
 .contact-item {
@@ -122,6 +119,19 @@
   margin-bottom: 5px;
 }
 
+/* Dark mode fixes for contact content */
+.dark-theme .contact-content h6 {
+  color: #ffffff !important;
+}
+
+.dark-theme .contact-content p {
+  color: #e0e0e0 !important;
+}
+
+.dark-theme .contact-content p.text-muted {
+  color: #b0b0b0 !important;
+}
+
 .form-success {
   display: flex;
   flex-direction: column;
@@ -146,6 +156,15 @@
   color: #6c757d;
 }
 
+/* Dark mode fixes for form success */
+.dark-theme .form-success h5 {
+  color: #ffffff !important;
+}
+
+.dark-theme .form-success p {
+  color: #b0b0b0 !important;
+}
+
 .accordion-button:not(.collapsed) {
   background-color: rgba(0, 86, 179, 0.05);
   color: var(--primary-color);
@@ -155,15 +174,116 @@
   box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
 }
 
+/* Dark mode fixes for accordion */
+.dark-theme .accordion-button {
+  background-color: var(--card-bg-dark);
+  color: #ffffff;
+}
+
+.dark-theme .accordion-button:not(.collapsed) {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--primary-dark);
+}
+
+.dark-theme .accordion-item {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+}
+
+.dark-theme .accordion-body {
+  background-color: var(--card-bg-dark);
+  color: #e0e0e0;
+}
+
+@media (max-width: 991px) {
+  .page-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+}
+
 @media (max-width: 767px) {
   .contact-item {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
-  
+
   .contact-icon {
     margin-right: 0;
     margin-bottom: 10px;
+  }
+
+  .guide-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .guide-icon {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .accordion-button {
+    padding: 12px;
+  }
+
+  .accordion-body {
+    padding: 12px;
+  }
+}
+
+/* Contact info box styles */
+.contact-info-box {
+  background-color: #f8f9fa;
+}
+
+.dark-theme .contact-info-box {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .contact-info-text {
+  color: #b0b0b0 !important;
+}
+
+.dark-theme .contact-email {
+  color: #ffffff !important;
+}
+
+.dark-theme strong {
+  color: #ffffff !important;
+}
+
+/* Card styles for dark mode */
+.dark-theme .card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+}
+
+.dark-theme .card-header {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom-color: var(--border-dark);
+}
+
+.dark-theme .card-header h5 {
+  color: #ffffff !important;
+}
+
+@media (max-width: 576px) {
+  .card {
+    margin-bottom: 15px;
+  }
+
+  .card-body {
+    padding: 15px;
+  }
+
+  .accordion-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .accordion-body {
+    padding: 10px;
   }
 }

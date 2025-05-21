@@ -8,11 +8,11 @@ const eventTransportationSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    organizer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
+    // organizer: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'User',
+    //     required: true
+    // },
     startDate: {
         type: Date,
         required: true
@@ -89,25 +89,8 @@ const eventTransportationSchema = new mongoose.Schema({
     specialInstructions: {
         type: String
     },
-    accessibilityRequirements: {
-        wheelchairAccessible: {
-            type: Boolean,
-            default: false
-        },
-        numberOfWheelchairs: {
-            type: Number,
-            default: 0
-        },
-        otherRequirements: {
-            type: String
-        }
-    }
 }, { timestamps: true });
 
-// Indexes for efficient queries
-eventTransportationSchema.index({ startDate: 1 });
-eventTransportationSchema.index({ status: 1 });
-eventTransportationSchema.index({ organizer: 1 });
 
 const EventTransportation = mongoose.model('EventTransportation', eventTransportationSchema);
 export default EventTransportation;

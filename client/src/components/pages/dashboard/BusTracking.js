@@ -26,15 +26,18 @@ const BusTracking = () => {
         setError(null);
 
         const response = await busService.getAllBuses();
-        if (response.success) {
-          // Check if response.data is an array, if not, use an empty array
-          const busesData = Array.isArray(response.data) ? response.data : [];
+        console.log('Bus Tracking - API Response:', response);
 
-          if (busesData.length > 0) {
+        if (response.success) {
+          // Check if response.data contains buses property (pagination structure)
+          const busesData = response.data.buses || response.data;
+          console.log('Bus Tracking - Buses data extracted:', busesData);
+
+          if (Array.isArray(busesData) && busesData.length > 0) {
             setBuses(busesData);
+            console.log('Bus Tracking - Buses set:', busesData.length);
           } else {
             setBuses([]);
-            setError('No buses found in the system. Please try again later.');
             console.warn('No buses found in the database');
           }
         } else {
@@ -157,7 +160,7 @@ const BusTracking = () => {
           <FaMapMarkerAlt className="me-2" />
           Bus Tracking
         </h1>
-        <p className="text-muted">Track buses in real-time and get ETA to your destination</p>
+        <p className="tracking-subtitle">Track buses in real-time and get ETA to your destination</p>
       </div>
 
       {error && (
@@ -173,6 +176,14 @@ const BusTracking = () => {
           </Spinner>
           <p className="mt-2">Loading buses...</p>
         </div>
+      ) : buses.length === 0 ? (
+        <div className="text-center my-5">
+          <Alert variant="info">
+            <h4>No buses found</h4>
+            <p>There are currently no buses available in the system.</p>
+            <p>Please check back later or contact the administrator.</p>
+          </Alert>
+        </div>
       ) : (
         <Row>
           <Col lg={4} className="mb-4">
@@ -186,11 +197,18 @@ const BusTracking = () => {
                     <Form.Label>Select Bus</Form.Label>
                     <Form.Select onChange={handleBusSelect} value={selectedBus || ''}>
                       <option value="">-- Select a bus --</option>
-                      {buses.map(bus => (
-                        <option key={bus._id} value={bus._id}>
-                          {bus.busNumber} - {bus.route || 'No route assigned'}
-                        </option>
-                      ))}
+                      {buses.map(bus => {
+                        // Get route information from the first route if available
+                        const routeInfo = bus.routes && bus.routes.length > 0
+                          ? `${bus.routes[0].pickupPoint} to ${bus.destination}`
+                          : bus.title || 'No route assigned';
+
+                        return (
+                          <option key={bus._id} value={bus._id}>
+                            {bus.busNumber} - {routeInfo}
+                          </option>
+                        );
+                      })}
                     </Form.Select>
                   </Form.Group>
 
@@ -226,7 +244,16 @@ const BusTracking = () => {
                       <FaRoute className="info-icon" />
                       <div>
                         <strong>Route</strong>
-                        <p>{buses.find(b => b._id === selectedBus)?.route || 'No route assigned'}</p>
+                        <p>
+                          {(() => {
+                            const bus = buses.find(b => b._id === selectedBus);
+                            if (!bus) return 'No route assigned';
+
+                            return bus.routes && bus.routes.length > 0
+                              ? `${bus.routes[0].pickupPoint} to ${bus.destination}`
+                              : bus.title || 'No route assigned';
+                          })()}
+                        </p>
                       </div>
                     </div>
 
@@ -296,7 +323,7 @@ const BusTracking = () => {
                         </>
                       )}
                     </div>
-                    <p className="text-muted">
+                    <p className="map-note">
                       Note: In a production app, this would be an actual map component
                       (e.g., Google Maps, Mapbox, Leaflet) showing the bus location in real-time.
                     </p>

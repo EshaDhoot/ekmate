@@ -14,7 +14,12 @@ const gpsLocationService = {
       const response = await axiosInstance.post('/gps-locations', locationData);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to create location entry' };
+      console.error('Error in createLocation:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to create location entry',
+        data: null
+      };
     }
   },
 
@@ -28,7 +33,12 @@ const gpsLocationService = {
       const response = await axiosInstance.get(`/gps-locations/buses/${busId}/latest`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch latest location' };
+      console.error('Error in getLatestLocation:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch latest location',
+        data: null
+      };
     }
   },
 
@@ -41,22 +51,27 @@ const gpsLocationService = {
   getLocationHistory: async (busId, params = {}) => {
     try {
       let url = `/gps-locations/buses/${busId}/history`;
-      
+
       // Add query parameters if provided
       const queryParams = new URLSearchParams();
       if (params.startDate) queryParams.append('startDate', params.startDate);
       if (params.endDate) queryParams.append('endDate', params.endDate);
       if (params.limit) queryParams.append('limit', params.limit);
-      
+
       const queryString = queryParams.toString();
       if (queryString) {
         url += `?${queryString}`;
       }
-      
+
       const response = await axiosInstance.get(url);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch location history' };
+      console.error('Error in getLocationHistory:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch location history',
+        data: []
+      };
     }
   },
 
@@ -71,7 +86,12 @@ const gpsLocationService = {
       const response = await axiosInstance.put(`/gps-locations/${id}`, locationData);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to update location' };
+      console.error('Error in updateLocation:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update location',
+        data: null
+      };
     }
   },
 
@@ -84,7 +104,12 @@ const gpsLocationService = {
       const response = await axiosInstance.get('/gps-locations/active');
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch active locations' };
+      console.error('Error in getAllActiveLocations:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch active locations',
+        data: []
+      };
     }
   },
 
@@ -97,22 +122,27 @@ const gpsLocationService = {
   calculateETA: async (busId, params = {}) => {
     try {
       let url = `/gps-locations/buses/${busId}/eta`;
-      
+
       // Add query parameters if provided
       const queryParams = new URLSearchParams();
       if (params.destinationLat) queryParams.append('destinationLat', params.destinationLat);
       if (params.destinationLng) queryParams.append('destinationLng', params.destinationLng);
       if (params.stopId) queryParams.append('stopId', params.stopId);
-      
+
       const queryString = queryParams.toString();
       if (queryString) {
         url += `?${queryString}`;
       }
-      
+
       const response = await axiosInstance.get(url);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to calculate ETA' };
+      console.error('Error in calculateETA:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to calculate ETA',
+        data: null
+      };
     }
   }
 };

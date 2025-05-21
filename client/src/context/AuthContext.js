@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import axiosInstance from '../utils/axiosConfig';
 
 const AuthContext = createContext();
@@ -86,12 +86,18 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser(null);
   };
 
+  // Helper function to check if user is authenticated
+  const isAuthenticated = () => {
+    return !!localStorage.getItem('token');
+  };
+
   const value = {
     currentUser,
     loading,
     error,
     login,
-    logout
+    logout,
+    isAuthenticated
   };
 
   return (

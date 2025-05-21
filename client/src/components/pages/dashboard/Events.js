@@ -28,27 +28,39 @@ const Events = () => {
 
         const response = await eventService.getUpcomingEvents();
 
-        if (response.success && Array.isArray(response.data)) {
-          // Transform the data to match our UI needs
-          const formattedEvents = response.data.map(event => ({
-            id: event._id,
-            title: event.title,
-            date: event.date,
-            time: `${new Date(event.startTime).toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })} - ${new Date(event.endTime).toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })}`,
-            location: event.location,
-            description: event.description,
-            type: event.eventType || 'cultural', // Default to cultural if not specified
-            transportation: event.transportationAvailable || false,
-            image: event.image || 'https://via.placeholder.com/800x400'
-          }));
+        if (response.success) {
+          // Check if response.data is an array or if it has an events property that is an array
+          const eventsArray = Array.isArray(response.data)
+            ? response.data
+            : (response.data && Array.isArray(response.data.events)
+              ? response.data.events
+              : []);
 
-          setEvents(formattedEvents);
+          if (eventsArray.length > 0) {
+            // Transform the data to match our UI needs
+            const formattedEvents = eventsArray.map(event => ({
+              id: event._id,
+              title: event.eventName || event.title,
+              date: event.startDate || event.date,
+              time: `${new Date(event.startDate || event.startTime).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })} - ${new Date(event.endDate || event.endTime).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })}`,
+              location: event.location,
+              description: event.description,
+              type: event.eventType || 'cultural', // Default to cultural if not specified
+              transportation: event.transportationAvailable || (event.transportationNeeds && Object.keys(event.transportationNeeds).length > 0) || false,
+              image: event.image || 'https://via.placeholder.com/800x400'
+            }));
+
+            setEvents(formattedEvents);
+          } else {
+            setEvents([]);
+            // console.log('No upcoming events found');
+          }
         } else {
           setError('Failed to fetch events. Please try again later.');
           console.error('Failed to fetch events:', response?.message);
@@ -178,7 +190,7 @@ const Events = () => {
                   <div className="event-details">
                     <div className="event-detail">
                       <FaCalendarAlt className="event-icon" />
-                      <span>{new Date(event.date).toLocaleDateString('en-US', {
+                      <span>{new Date(event.date || new Date()).toLocaleDateString('en-US', {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',

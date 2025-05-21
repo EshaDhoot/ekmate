@@ -21,6 +21,80 @@
   padding: 15px 20px;
 }
 
+/* Dark mode fixes for dashboard */
+.dark-theme .dashboard-card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--border-dark);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .dashboard-card .card-header {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.dark-theme .dashboard-card .card-title,
+.dark-theme .dashboard-card .card-text,
+.dark-theme .dashboard-card h5,
+.dark-theme .dashboard-card p {
+  color: var(--text-dark) !important;
+}
+
+/* Fix table text in dark mode - with higher specificity */
+.dark-theme .dashboard-card .table,
+.dark-theme .table.table-hover,
+.dark-theme table.table {
+  color: #f8f9fa !important;
+  background-color: transparent !important;
+}
+
+.dark-theme .dashboard-card .table th,
+.dark-theme .dashboard-card .table td,
+.dark-theme .table.table-hover th,
+.dark-theme .table.table-hover td,
+.dark-theme table.table th,
+.dark-theme table.table td {
+  color: #f8f9fa !important;
+  border-color: #444 !important;
+  background-color: transparent !important;
+}
+
+.dark-theme .dashboard-card .table thead th,
+.dark-theme .table.table-hover thead th,
+.dark-theme table.table thead th {
+  border-bottom-color: #444 !important;
+  color: #f8f9fa !important;
+}
+
+.dark-theme .dashboard-card .table tbody tr,
+.dark-theme .table.table-hover tbody tr,
+.dark-theme table.table tbody tr {
+  color: #f8f9fa !important;
+}
+
+.dark-theme .dashboard-card .table-hover tbody tr:hover,
+.dark-theme .table.table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Specific style for bus table */
+.bus-table {
+  width: 100%;
+}
+
+.dark-theme .bus-table,
+.dark-theme .bus-table th,
+.dark-theme .bus-table td {
+  color: #ffffff !important;
+}
+
+/* Override any Bootstrap styles that might be causing issues */
+.dark-theme .table {
+  --bs-table-color: #ffffff !important;
+  --bs-table-bg: transparent !important;
+  color: #ffffff !important;
+}
+
 .dashboard-card .card-header h5 {
   font-weight: 600;
   display: flex;
@@ -44,6 +118,33 @@
 .status-badge.delayed {
   background-color: rgba(255, 193, 7, 0.1);
   color: #ffc107;
+}
+
+/* Dark mode fixes for status badges */
+.dark-theme .status-badge.on-time {
+  background-color: rgba(40, 167, 69, 0.2);
+  color: #4caf50;
+}
+
+.dark-theme .status-badge.delayed {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+/* Fix for activity items in dark mode */
+.dark-theme .activity-item {
+  border-color: var(--border-dark);
+}
+
+.dark-theme .activity-icon {
+  background-color: rgba(149, 117, 205, 0.2);
+  color: var(--primary-dark);
+}
+
+.dark-theme .activity-content h6,
+.dark-theme .activity-content p,
+.dark-theme .activity-time {
+  color: var(--text-dark) !important;
 }
 
 /* Event items */
@@ -135,12 +236,21 @@
   color: #6c757d;
 }
 
+/* No results message */
+.no-results {
+  color: #6c757d;
+}
+
+.dark-theme .no-results {
+  color: #b0b0b0 !important;
+}
+
 /* Responsive styles */
 @media (max-width: 767px) {
   .dashboard-header h1 {
     font-size: 1.8rem;
   }
-  
+
   .quick-actions {
     grid-template-columns: repeat(2, 1fr);
   }

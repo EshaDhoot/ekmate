@@ -40,42 +40,47 @@ class UserPreferencesService {
                 throw new Error("user not found");
             }
 
-            const preferences = await this.userPreferencesRepository.findByUserId(userId);
-            console.log("getUserPreferences method called successfully from UserPreferencesService");
-            return preferences;
+            try {
+                const preferences = await this.userPreferencesRepository.findByUserId(userId);
+                console.log("getUserPreferences method called successfully from UserPreferencesService");
+                return preferences;
+            } catch (error) {
+                // If preferences not found, create default preferences
+                if (error.message === "preferences not found") {
+                    const defaultPreferences = {
+                        userId,
+                        favoriteRoutes: [],
+                        notificationSettings: {
+                            pushNotifications: {
+                                enabled: true,
+                                busDelays: true,
+                                routeChanges: true,
+                                approachingBus: true,
+                                specialEvents: true
+                            },
+                            emailNotifications: {
+                                enabled: true,
+                                dailySchedule: false,
+                                weeklySchedule: true,
+                                specialEvents: true
+                            }
+                        },
+                        classSchedule: [],
+                        language: 'en',
+                        accessibilitySettings: {
+                            highContrast: false,
+                            screenReader: false,
+                            textToSpeech: false
+                        }
+                    };
+
+                    // Create the preferences in the database
+                    return await this.userPreferencesRepository.create(defaultPreferences);
+                }
+                throw error;
+            }
         } catch (error) {
             console.log("getUserPreferences method called from UserPreferencesService and throws error: ", error);
-            
-            // If preferences not found, return default preferences
-            if (error.message === "preferences not found") {
-                return {
-                    userId,
-                    favoriteRoutes: [],
-                    notificationSettings: {
-                        pushNotifications: {
-                            enabled: true,
-                            busDelays: true,
-                            routeChanges: true,
-                            approachingBus: true,
-                            specialEvents: true
-                        },
-                        emailNotifications: {
-                            enabled: true,
-                            dailySchedule: false,
-                            weeklySchedule: true,
-                            specialEvents: true
-                        }
-                    },
-                    classSchedule: [],
-                    language: 'en',
-                    accessibilitySettings: {
-                        highContrast: false,
-                        screenReader: false,
-                        textToSpeech: false
-                    }
-                };
-            }
-            
             throw error;
         }
     }
@@ -163,7 +168,7 @@ class UserPreferencesService {
             }
 
             const preferences = await this.userPreferencesRepository.findByUserId(userId);
-            
+
             // Populate the favorite routes with bus details
             const favoriteRoutes = [];
             for (const busId of preferences.favoriteRoutes) {
@@ -175,17 +180,17 @@ class UserPreferencesService {
                     // Skip this bus if it can't be found
                 }
             }
-            
+
             console.log("getFavoriteRoutes method called successfully from UserPreferencesService");
             return favoriteRoutes;
         } catch (error) {
             console.log("getFavoriteRoutes method called from UserPreferencesService and throws error: ", error);
-            
+
             // If preferences not found, return empty array
             if (error.message === "preferences not found") {
                 return [];
             }
-            
+
             throw error;
         }
     }

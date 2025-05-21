@@ -53,7 +53,6 @@ import {
 import {
     createEvent,
     getEventById,
-    getEventsByOrganizer,
     getUpcomingEvents,
     getPendingEvents,
     updateEvent,
@@ -110,11 +109,12 @@ router.post('/contact-form-query', createQuery);
 
 // GPS Location routes
 router.post('/gps-locations', authenticateJWT, createLocation);
+router.get('/gps-locations/active', getAllActiveLocations);
 router.get('/gps-locations/buses/:busId/latest', getLatestLocation);
 router.get('/gps-locations/buses/:busId/history', getLocationHistory);
-router.put('/gps-locations/:id', authenticateJWT, updateLocation);
-router.get('/gps-locations/active', getAllActiveLocations);
 router.get('/gps-locations/buses/:busId/eta', calculateETA);
+// Generic :id route should come after specific routes
+router.put('/gps-locations/:id', authenticateJWT, updateLocation);
 
 // User Preferences routes
 router.post('/users/:userId/preferences', authenticateJWT, createOrUpdatePreferences);
@@ -127,32 +127,37 @@ router.get('/users/:userId/favorite-routes', authenticateJWT, getFavoriteRoutes)
 
 // Feedback routes
 router.post('/feedback', authenticateJWT, createFeedback);
-router.get('/feedback/:id', getFeedbackById);
+// Define specific routes before the generic :id route
 router.get('/feedback/buses/:busId', getFeedbackByBusId);
 router.get('/feedback/users/:userId', authenticateJWT, getFeedbackByUserId);
-router.put('/feedback/:id', authenticateJWT, updateFeedback);
-router.put('/feedback/:id/respond', authenticateJWT, isAdmin, respondToFeedback);
 router.get('/feedback/buses/:busId/rating', getAverageRating);
 router.get('/feedback/buses/:busId/stats', getFeedbackStats);
 router.get('/feedback/pending', authenticateJWT, isAdmin, getPendingFeedback);
+// Generic :id route should come after specific routes
+router.get('/feedback/:id', getFeedbackById);
+router.put('/feedback/:id', authenticateJWT, updateFeedback);
+router.put('/feedback/:id/respond', authenticateJWT, isAdmin, respondToFeedback);
 
 // Bus Analytics routes
 router.post('/analytics', authenticateJWT, isAdmin, createAnalytics);
-router.get('/analytics/:id', authenticateJWT, isAdmin, getAnalyticsById);
+// Define specific routes before the generic :id route
 router.get('/analytics/buses/:busId', authenticateJWT, isAdmin, getAnalyticsByBusIdAndDate);
 router.get('/analytics/buses/:busId/date-range', authenticateJWT, isAdmin, getAnalyticsForDateRange);
 router.get('/analytics/peak-hours', authenticateJWT, isAdmin, getPeakHourData);
-router.put('/analytics/:id', authenticateJWT, isAdmin, updateAnalytics);
 router.put('/analytics/buses/:busId', authenticateJWT, isAdmin, updateOrCreateAnalytics);
 router.post('/analytics/buses/:busId/passenger-count', authenticateJWT, recordPassengerCount);
+// Generic :id route should come after specific routes
+router.get('/analytics/:id', authenticateJWT, isAdmin, getAnalyticsById);
+router.put('/analytics/:id', authenticateJWT, isAdmin, updateAnalytics);
 
 // Event Transportation routes
-router.post('/events', authenticateJWT, createEvent);
-router.get('/events/:id', getEventById);
-router.get('/events/organizers/:organizerId', authenticateJWT, getEventsByOrganizer);
+router.post('/events', authenticateJWT, isAdmin, createEvent);
+// Define specific routes before the generic :id route
 router.get('/events/upcoming', getUpcomingEvents);
 router.get('/events/pending', authenticateJWT, isAdmin, getPendingEvents);
-router.put('/events/:id', authenticateJWT, updateEvent);
+// Generic :id route should come after specific routes
+router.get('/events/:id', authenticateJWT, getEventById);
+router.put('/events/:id', authenticateJWT, isAdmin, updateEvent);
 router.post('/events/:id/assign-bus', authenticateJWT, isAdmin, assignBusToEvent);
 router.put('/events/:id/status', authenticateJWT, isAdmin, updateEventStatus);
 router.put('/events/:id/approve', authenticateJWT, isAdmin, approveEvent);
@@ -160,21 +165,24 @@ router.put('/events/:id/cancel', authenticateJWT, isAdmin, cancelEvent);
 
 // Bus Maintenance routes
 router.post('/maintenance', authenticateJWT, isAdmin, createMaintenance);
-router.get('/maintenance/:id', authenticateJWT, getMaintenanceById);
-router.get('/maintenance/buses/:busId', authenticateJWT, getMaintenanceByBusId);
+// Define specific routes before the generic :id route
 router.get('/maintenance/upcoming', authenticateJWT, isAdmin, getUpcomingMaintenance);
+router.get('/maintenance/buses/:busId', authenticateJWT, getMaintenanceByBusId);
 router.get('/maintenance/buses/:busId/history', authenticateJWT, getMaintenanceHistory);
+router.post('/maintenance/buses/:busId/schedule', authenticateJWT, isAdmin, scheduleMaintenance);
+// Generic :id route should come after specific routes
+router.get('/maintenance/:id', authenticateJWT, getMaintenanceById);
 router.put('/maintenance/:id', authenticateJWT, isAdmin, updateMaintenance);
 router.put('/maintenance/:id/status', authenticateJWT, isAdmin, updateMaintenanceStatus);
 router.put('/maintenance/:id/complete', authenticateJWT, isAdmin, markMaintenanceAsCompleted);
-router.post('/maintenance/buses/:busId/schedule', authenticateJWT, isAdmin, scheduleMaintenance);
 
 // Driver routes
-router.post('/drivers', authenticateJWT, isAdmin, createDriver); 
-router.get('/drivers/:id', authenticateJWT, getDriverById);
+router.post('/drivers', authenticateJWT, isAdmin, createDriver);
 router.get('/drivers', authenticateJWT, isAdmin, getAllDrivers);
 router.get('/drivers/active', authenticateJWT, isAdmin, getActiveDrivers);
 router.get('/drivers/expiring-licenses', authenticateJWT, isAdmin, getDriversWithExpiringLicenses);
+// Generic :id route should come after specific routes
+router.get('/drivers/:id', authenticateJWT, getDriverById);
 router.put('/drivers/:id', authenticateJWT, isAdmin, updateDriver);
 router.post('/drivers/:id/assign-bus', authenticateJWT, isAdmin, assignBus);
 

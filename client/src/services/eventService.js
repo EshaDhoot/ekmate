@@ -55,7 +55,12 @@ const eventService = {
       const response = await axiosInstance.get('/events/upcoming');
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch upcoming events' };
+      console.error('Error in getUpcomingEvents:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch upcoming events',
+        data: []
+      };
     }
   },
 

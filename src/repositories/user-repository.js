@@ -16,6 +16,21 @@ class UserRepository {
         }
     }
 
+    async findById(id) {
+        try {
+            const user = await User.findById(id);
+            if (!user) {
+                console.log("No user found with the given ID.");
+                throw new Error("user not found");
+            }
+            console.log("user found successfully, findById method called successfully from UserRepository");
+            return user;
+        } catch (error) {
+            console.log("unable to find user by ID, findById method called from UserRepository and throws error: ", error);
+            throw error;
+        }
+    }
+
     async findByEmail(email) {
         try {
             const user = await User.findOne({ email: email });

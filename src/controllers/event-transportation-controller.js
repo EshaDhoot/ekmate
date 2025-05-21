@@ -4,6 +4,16 @@ const eventTransportationService = new EventTransportationService();
 
 export const createEvent = async (req, res) => {
     try {
+        // Double-check that the user is an admin (middleware should already handle this)
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                data: {},
+                message: "Only administrators can create events",
+                error: "Unauthorized access",
+                success: false
+            });
+        }
+
         const event = await eventTransportationService.createEvent(req.body);
         return res.status(201).json({
             data: event,
@@ -13,14 +23,6 @@ export const createEvent = async (req, res) => {
         });
     } catch (error) {
         console.log("Unable to create event transportation, error from event-transportation-controller: ", error);
-        if (error.message === "organizer not found") {
-            return res.status(404).json({
-                data: {},
-                message: "Organizer not found",
-                error: error.message,
-                success: false
-            });
-        }
         return res.status(500).json({
             data: {},
             message: "Unable to create event transportation",
@@ -59,51 +61,17 @@ export const getEventById = async (req, res) => {
     }
 };
 
-export const getEventsByOrganizer = async (req, res) => {
-    try {
-        const { organizerId } = req.params;
-        const { page, limit } = req.query;
-        
-        const events = await eventTransportationService.getEventsByOrganizer(
-            organizerId, 
-            parseInt(page) || 1, 
-            parseInt(limit) || 10
-        );
-        
-        return res.status(200).json({
-            data: events,
-            message: "Fetched events by organizer successfully",
-            error: {},
-            success: true
-        });
-    } catch (error) {
-        console.log("Unable to fetch events by organizer, error from event-transportation-controller: ", error);
-        if (error.message === "organizer not found") {
-            return res.status(404).json({
-                data: {},
-                message: "Organizer not found",
-                error: error.message,
-                success: false
-            });
-        }
-        return res.status(500).json({
-            data: {},
-            message: "Unable to fetch events by organizer",
-            error: error.message,
-            success: false
-        });
-    }
-};
+
 
 export const getUpcomingEvents = async (req, res) => {
     try {
         const { page, limit } = req.query;
-        
+
         const events = await eventTransportationService.getUpcomingEvents(
-            parseInt(page) || 1, 
+            parseInt(page) || 1,
             parseInt(limit) || 10
         );
-        
+
         return res.status(200).json({
             data: events,
             message: "Fetched upcoming events successfully",
@@ -124,12 +92,12 @@ export const getUpcomingEvents = async (req, res) => {
 export const getPendingEvents = async (req, res) => {
     try {
         const { page, limit } = req.query;
-        
+
         const events = await eventTransportationService.getPendingEvents(
-            parseInt(page) || 1, 
+            parseInt(page) || 1,
             parseInt(limit) || 10
         );
-        
+
         return res.status(200).json({
             data: events,
             message: "Fetched pending events successfully",
@@ -180,7 +148,7 @@ export const assignBusToEvent = async (req, res) => {
     try {
         const { id } = req.params;
         const busAssignment = req.body;
-        
+
         if (!busAssignment.busId) {
             return res.status(400).json({
                 data: {},
@@ -189,7 +157,7 @@ export const assignBusToEvent = async (req, res) => {
                 success: false
             });
         }
-        
+
         const event = await eventTransportationService.assignBusToEvent(id, busAssignment);
         return res.status(200).json({
             data: event,
@@ -236,7 +204,7 @@ export const updateEventStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        
+
         if (!status) {
             return res.status(400).json({
                 data: {},
@@ -245,7 +213,7 @@ export const updateEventStatus = async (req, res) => {
                 success: false
             });
         }
-        
+
         const event = await eventTransportationService.updateEventStatus(id, status);
         return res.status(200).json({
             data: event,

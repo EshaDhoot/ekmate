@@ -13,12 +13,6 @@ class EventTransportationService {
 
     async createEvent(payload) {
         try {
-            // Validate that the organizer exists
-            const organizer = await this.userRepository.findById(payload.organizer);
-            if (!organizer) {
-                throw new Error("organizer not found");
-            }
-
             const event = await this.eventTransportationRepository.create(payload);
             console.log("createEvent method called successfully from EventTransportationService");
             return event;
@@ -39,22 +33,7 @@ class EventTransportationService {
         }
     }
 
-    async getEventsByOrganizer(organizerId, page = 1, limit = 10) {
-        try {
-            // Validate that the organizer exists
-            const organizer = await this.userRepository.findById(organizerId);
-            if (!organizer) {
-                throw new Error("organizer not found");
-            }
 
-            const events = await this.eventTransportationRepository.findByOrganizer(organizerId, page, limit);
-            console.log("getEventsByOrganizer method called successfully from EventTransportationService");
-            return events;
-        } catch (error) {
-            console.log("getEventsByOrganizer method called from EventTransportationService and throws error: ", error);
-            throw error;
-        }
-    }
 
     async getUpcomingEvents(page = 1, limit = 10) {
         try {

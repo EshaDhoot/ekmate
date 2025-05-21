@@ -29,14 +29,14 @@ const NavbarComponent = () => {
             <Nav.Link as={Link} to="/" className="nav-link">Home</Nav.Link>
             <Nav.Link as={Link} to="/about" className="nav-link">About</Nav.Link>
             <Nav.Link as={Link} to="/contact" className="nav-link">Contact</Nav.Link>
-            {isAuthenticated && (
+            {isAuthenticated() && (
               <Nav.Link as={Link} to="/dashboard" className="nav-link">Dashboard</Nav.Link>
             )}
           </Nav>
           <div className="d-flex align-items-center">
             <ThemeToggle />
 
-            {isAuthenticated ? (
+            {isAuthenticated() ? (
               <Dropdown align="end">
                 <Dropdown.Toggle variant="link" id="dropdown-user" className="nav-link p-0 d-flex align-items-center">
                   <FaUserCircle size={24} className="me-2" />

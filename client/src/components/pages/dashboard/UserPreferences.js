@@ -18,9 +18,7 @@ const UserPreferences = () => {
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: false,
     pushNotifications: false,
-    delayAlerts: false,
-    scheduleChanges: false,
-    promotions: false
+    importantAlerts: false
   });
 
   // Form state for favorite routes
@@ -28,13 +26,13 @@ const UserPreferences = () => {
   const [newFavoriteRoute, setNewFavoriteRoute] = useState('');
 
   // Form state for class schedule
-  const [classSchedule, setClassSchedule] = useState([
-    { day: 'Monday', startTime: '', endTime: '', location: '' },
-    { day: 'Tuesday', startTime: '', endTime: '', location: '' },
-    { day: 'Wednesday', startTime: '', endTime: '', location: '' },
-    { day: 'Thursday', startTime: '', endTime: '', location: '' },
-    { day: 'Friday', startTime: '', endTime: '', location: '' }
-  ]);
+  const [classSchedule, setClassSchedule] = useState([]);
+  const [newScheduleItem, setNewScheduleItem] = useState({
+    day: 'Monday',
+    startTime: '',
+    endTime: '',
+    location: ''
+  });
 
   // Fetch user preferences and buses
   useEffect(() => {
@@ -48,29 +46,12 @@ const UserPreferences = () => {
         // Fetch buses
         const busesResponse = await busService.getAllBuses();
         if (busesResponse.success) {
-          // Check if response.data is an array, if not, use an empty array
-          const busesData = Array.isArray(busesResponse.data) ? busesResponse.data : [];
-
-          // For testing purposes, if no buses are returned, create mock data
-          if (busesData.length === 0) {
-            const mockBuses = [
-              { _id: '1', busNumber: 'B101', route: 'Campus to City Center' },
-              { _id: '2', busNumber: 'B102', route: 'City Center to Campus' },
-              { _id: '3', busNumber: 'B103', route: 'Campus to North Station' }
-            ];
-            setBuses(mockBuses);
-          } else {
-            setBuses(busesData);
-          }
+          // Check if response.data.buses is an array, if not, use an empty array
+          const busesData = busesResponse.data && busesResponse.data.buses ? busesResponse.data.buses : [];
+          setBuses(busesData);
         } else {
-          // If API call was not successful, set mock data
-          const mockBuses = [
-            { _id: '1', busNumber: 'B101', route: 'Campus to City Center' },
-            { _id: '2', busNumber: 'B102', route: 'City Center to Campus' },
-            { _id: '3', busNumber: 'B103', route: 'Campus to North Station' }
-          ];
-          setBuses(mockBuses);
-          console.warn('Using mock bus data due to API error');
+          setBuses([]);
+          console.warn('Failed to fetch buses:', busesResponse?.message);
         }
 
         // Fetch user preferences
@@ -80,9 +61,18 @@ const UserPreferences = () => {
             const userPrefs = preferencesResponse.data;
             setPreferences(userPrefs);
 
-            // Set notification settings
+            // Set notification settings (convert from backend format to simplified format)
             if (userPrefs.notificationSettings) {
-              setNotificationSettings(userPrefs.notificationSettings);
+              const ns = userPrefs.notificationSettings;
+              setNotificationSettings({
+                emailNotifications: ns.emailNotifications?.enabled || false,
+                pushNotifications: ns.pushNotifications?.enabled || false,
+                importantAlerts: (
+                  (ns.emailNotifications?.specialEvents ||
+                   ns.pushNotifications?.busDelays ||
+                   ns.pushNotifications?.specialEvents) || false
+                )
+              });
             }
 
             // Set favorite routes
@@ -91,108 +81,31 @@ const UserPreferences = () => {
             }
 
             // Set class schedule
-            if (userPrefs.classSchedule && userPrefs.classSchedule.length > 0) {
-              // Merge with default schedule to ensure all days are included
-              const updatedSchedule = [...classSchedule];
-
-              userPrefs.classSchedule.forEach(cls => {
-                const index = updatedSchedule.findIndex(item => item.day === cls.day);
-                if (index !== -1) {
-                  updatedSchedule[index] = cls;
-                }
-              });
-
-              setClassSchedule(updatedSchedule);
+            if (userPrefs.classSchedule && Array.isArray(userPrefs.classSchedule)) {
+              setClassSchedule(userPrefs.classSchedule);
             }
           } else {
-            // Set mock preferences data
-            console.warn('Using mock preferences data');
-
-            // Mock notification settings
-            const mockNotificationSettings = {
-              emailNotifications: true,
-              pushNotifications: true,
-              delayAlerts: true,
-              scheduleChanges: false,
-              promotions: false
-            };
-            setNotificationSettings(mockNotificationSettings);
-
-            // Mock favorite routes
-            const mockFavoriteRoutes = [
-              {
-                busId: '1',
-                routeName: 'Campus to City Center',
-                busNumber: 'B101'
-              }
-            ];
-            setFavoriteRoutes(mockFavoriteRoutes);
-
-            // Mock class schedule (keep default)
+            console.warn('No preferences data found');
+            // Keep default empty values
           }
         } catch (preferencesError) {
           console.error('Error fetching preferences:', preferencesError);
-          // Set mock preferences data on error
-          console.warn('Using mock preferences data due to error');
-
-          // Mock notification settings
-          const mockNotificationSettings = {
-            emailNotifications: true,
-            pushNotifications: true,
-            delayAlerts: true,
-            scheduleChanges: false,
-            promotions: false
-          };
-          setNotificationSettings(mockNotificationSettings);
-
-          // Mock favorite routes
-          const mockFavoriteRoutes = [
-            {
-              busId: '1',
-              routeName: 'Campus to City Center',
-              busNumber: 'B101'
-            }
-          ];
-          setFavoriteRoutes(mockFavoriteRoutes);
+          setError('Failed to load preferences. Please try again later.');
+          // Keep default empty values
         }
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to load preferences. Please try again later.');
 
-        // Set mock data on error
-        const mockBuses = [
-          { _id: '1', busNumber: 'B101', route: 'Campus to City Center' },
-          { _id: '2', busNumber: 'B102', route: 'City Center to Campus' },
-          { _id: '3', busNumber: 'B103', route: 'Campus to North Station' }
-        ];
-        setBuses(mockBuses);
-
-        // Mock notification settings
-        const mockNotificationSettings = {
-          emailNotifications: true,
-          pushNotifications: true,
-          delayAlerts: true,
-          scheduleChanges: false,
-          promotions: false
-        };
-        setNotificationSettings(mockNotificationSettings);
-
-        // Mock favorite routes
-        const mockFavoriteRoutes = [
-          {
-            busId: '1',
-            routeName: 'Campus to City Center',
-            busNumber: 'B101'
-          }
-        ];
-        setFavoriteRoutes(mockFavoriteRoutes);
+        // Set empty data on error
+        setBuses([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [currentUser, classSchedule]);
+  }, [currentUser]);
 
   // Handle notification settings changes
   const handleNotificationChange = (e) => {
@@ -218,7 +131,7 @@ const UserPreferences = () => {
 
     const newRoute = {
       busId: selectedBus._id,
-      routeName: selectedBus.route || 'Unknown Route',
+      routeName: selectedBus.title || 'Unknown Route',
       busNumber: selectedBus.busNumber
     };
 
@@ -231,14 +144,35 @@ const UserPreferences = () => {
     setFavoriteRoutes(prev => prev.filter(route => route.busId !== busId));
   };
 
-  // Handle class schedule changes
-  const handleScheduleChange = (index, field, value) => {
-    const updatedSchedule = [...classSchedule];
-    updatedSchedule[index] = {
-      ...updatedSchedule[index],
+  // Handle new schedule item changes
+  const handleNewScheduleChange = (field, value) => {
+    setNewScheduleItem(prev => ({
+      ...prev,
       [field]: value
-    };
-    setClassSchedule(updatedSchedule);
+    }));
+  };
+
+  // Handle adding a new schedule item
+  const handleAddScheduleItem = () => {
+    if (!newScheduleItem.day || !newScheduleItem.startTime || !newScheduleItem.endTime) {
+      setError('Please fill in day, start time, and end time for the schedule');
+      return;
+    }
+
+    setClassSchedule(prev => [...prev, { ...newScheduleItem }]);
+
+    // Reset the form
+    setNewScheduleItem({
+      day: 'Monday',
+      startTime: '',
+      endTime: '',
+      location: ''
+    });
+  };
+
+  // Handle removing a schedule item
+  const handleRemoveScheduleItem = (index) => {
+    setClassSchedule(prev => prev.filter((_, i) => i !== index));
   };
 
   // Handle form submission
@@ -255,8 +189,25 @@ const UserPreferences = () => {
       setError(null);
       setSuccess(null);
 
+      // Convert simplified notification settings to the format expected by the backend
+      const formattedNotificationSettings = {
+        pushNotifications: {
+          enabled: notificationSettings.pushNotifications,
+          busDelays: notificationSettings.importantAlerts,
+          routeChanges: notificationSettings.importantAlerts,
+          approachingBus: notificationSettings.importantAlerts,
+          specialEvents: notificationSettings.importantAlerts
+        },
+        emailNotifications: {
+          enabled: notificationSettings.emailNotifications,
+          dailySchedule: notificationSettings.importantAlerts,
+          weeklySchedule: notificationSettings.importantAlerts,
+          specialEvents: notificationSettings.importantAlerts
+        }
+      };
+
       const preferencesData = {
-        notificationSettings,
+        notificationSettings: formattedNotificationSettings,
         favoriteRoutes,
         classSchedule: classSchedule.filter(cls => cls.startTime && cls.endTime) // Only save days with times
       };
@@ -287,7 +238,7 @@ const UserPreferences = () => {
           <FaCog className="me-2" />
           User Preferences
         </h1>
-        <p className="text-muted">Customize your experience and preferences</p>
+        <p className="preferences-subtitle">Customize your experience and preferences</p>
       </div>
 
       {error && (
@@ -343,31 +294,12 @@ const UserPreferences = () => {
 
                   <Form.Check
                     type="switch"
-                    id="delayAlerts"
-                    name="delayAlerts"
-                    label="Bus Delay Alerts"
-                    checked={notificationSettings.delayAlerts}
+                    id="importantAlerts"
+                    name="importantAlerts"
+                    label="Important Alerts"
+                    checked={notificationSettings.importantAlerts}
                     onChange={handleNotificationChange}
                     className="mb-3"
-                  />
-
-                  <Form.Check
-                    type="switch"
-                    id="scheduleChanges"
-                    name="scheduleChanges"
-                    label="Schedule Change Notifications"
-                    checked={notificationSettings.scheduleChanges}
-                    onChange={handleNotificationChange}
-                    className="mb-3"
-                  />
-
-                  <Form.Check
-                    type="switch"
-                    id="promotions"
-                    name="promotions"
-                    label="Promotional Notifications"
-                    checked={notificationSettings.promotions}
-                    onChange={handleNotificationChange}
                   />
                 </Card.Body>
               </Card>
@@ -389,7 +321,7 @@ const UserPreferences = () => {
                       <option value="">-- Select a route --</option>
                       {buses.map(bus => (
                         <option key={bus._id} value={bus._id}>
-                          {bus.busNumber} - {bus.route || 'No route assigned'}
+                          {bus.busNumber} - {bus.title || 'No route assigned'}
                         </option>
                       ))}
                     </Form.Select>
@@ -403,7 +335,7 @@ const UserPreferences = () => {
                   </div>
 
                   {favoriteRoutes.length === 0 ? (
-                    <p className="text-muted">No favorite routes added yet.</p>
+                    <p className="no-results">No favorite routes added yet.</p>
                   ) : (
                     <ListGroup>
                       {favoriteRoutes.map(route => (
@@ -441,46 +373,103 @@ const UserPreferences = () => {
                   </h5>
                 </Card.Header>
                 <Card.Body>
-                  <p className="text-muted mb-3">
+                  <p className="schedule-description mb-3">
                     Add your class schedule to get personalized bus recommendations.
                   </p>
 
-                  {classSchedule.map((day, index) => (
-                    <div key={day.day} className="schedule-day mb-4">
-                      <h6>{day.day}</h6>
-                      <Row>
-                        <Col md={5}>
-                          <Form.Group className="mb-2">
-                            <Form.Label>Start Time</Form.Label>
-                            <Form.Control
-                              type="time"
-                              value={day.startTime}
-                              onChange={(e) => handleScheduleChange(index, 'startTime', e.target.value)}
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col md={5}>
-                          <Form.Group className="mb-2">
-                            <Form.Label>End Time</Form.Label>
-                            <Form.Control
-                              type="time"
-                              value={day.endTime}
-                              onChange={(e) => handleScheduleChange(index, 'endTime', e.target.value)}
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Form.Group>
-                        <Form.Label>Location</Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="e.g., Engineering Building"
-                          value={day.location}
-                          onChange={(e) => handleScheduleChange(index, 'location', e.target.value)}
-                        />
-                      </Form.Group>
+                  {/* Add new schedule item form */}
+                  <div className="add-schedule-form mb-4 p-3 border rounded">
+                    <h6 className="mb-3">Add New Schedule</h6>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Day</Form.Label>
+                          <Form.Select
+                            value={newScheduleItem.day}
+                            onChange={(e) => handleNewScheduleChange('day', e.target.value)}
+                          >
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                          </Form.Select>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Start Time</Form.Label>
+                          <Form.Control
+                            type="time"
+                            value={newScheduleItem.startTime}
+                            onChange={(e) => handleNewScheduleChange('startTime', e.target.value)}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>End Time</Form.Label>
+                          <Form.Control
+                            type="time"
+                            value={newScheduleItem.endTime}
+                            onChange={(e) => handleNewScheduleChange('endTime', e.target.value)}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Location</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="e.g., Engineering Building"
+                        value={newScheduleItem.location}
+                        onChange={(e) => handleNewScheduleChange('location', e.target.value)}
+                      />
+                    </Form.Group>
+                    <Button
+                      variant="outline-primary"
+                      onClick={handleAddScheduleItem}
+                      className="w-100"
+                    >
+                      <FaPlus className="me-2" /> Add Schedule
+                    </Button>
+                  </div>
+
+                  {/* Display existing schedule items */}
+                  {classSchedule.length === 0 ? (
+                    <p className="no-results">No class schedule items added yet.</p>
+                  ) : (
+                    <div className="schedule-list">
+                      {classSchedule.map((item, index) => (
+                        <div key={index} className="schedule-item mb-3 p-3 border rounded">
+                          <div className="d-flex justify-content-between align-items-center mb-2">
+                            <h6 className="mb-0">{item.day}</h6>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleRemoveScheduleItem(index)}
+                            >
+                              <FaTrash />
+                            </Button>
+                          </div>
+                          <div className="schedule-details">
+                            <p className="mb-1">
+                              <strong>Time:</strong> {item.startTime} - {item.endTime}
+                            </p>
+                            {item.location && (
+                              <p className="mb-0">
+                                <strong>Location:</strong> {item.location}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </Card.Body>
               </Card>
 
