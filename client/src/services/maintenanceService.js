@@ -131,6 +131,63 @@ const maintenanceService = {
     } catch (error) {
       throw error.response?.data || { message: 'Failed to schedule maintenance' };
     }
+  },
+
+  /**
+   * Get all maintenance records (admin only)
+   * @returns {Promise} Promise with all maintenance data
+   */
+  getAllMaintenance: async () => {
+    try {
+      const response = await axiosInstance.get('/maintenance');
+      return response.data;
+    } catch (error) {
+      console.error('Error in getAllMaintenance:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch maintenance records',
+        data: []
+      };
+    }
+  },
+
+  /**
+   * Delete maintenance record (admin only)
+   * @param {string} id - Maintenance ID
+   * @returns {Promise} Promise with deletion result
+   */
+  deleteMaintenance: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`/maintenance/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error in deleteMaintenance:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete maintenance record',
+        data: null
+      };
+    }
+  },
+
+  /**
+   * Update maintenance status with simple status string (admin only)
+   * @param {string} id - Maintenance ID
+   * @param {string} status - New status
+   * @returns {Promise} Promise with updated status
+   */
+  updateMaintenanceStatusSimple: async (id, status) => {
+    try {
+      const response = await axiosInstance.put(`/maintenance/${id}/status`, { status });
+      return response.data;
+    } catch (error) {
+      console.error('Error in updateMaintenanceStatusSimple:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update maintenance status',
+        data: null
+      };
+    }
   }
 };
 

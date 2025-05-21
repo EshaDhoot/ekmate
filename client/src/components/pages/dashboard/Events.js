@@ -10,6 +10,7 @@ import {
   FaInfoCircle
 } from 'react-icons/fa';
 import { eventService } from '../../../services';
+import { useToast } from '../../../context/ToastContext';
 import './Events.css';
 
 const Events = () => {
@@ -18,6 +19,7 @@ const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { showSuccess, showError, showInfo } = useToast();
 
   // Fetch events from API
   useEffect(() => {
@@ -57,16 +59,21 @@ const Events = () => {
             }));
 
             setEvents(formattedEvents);
+            showSuccess('Events loaded successfully');
           } else {
             setEvents([]);
-            // console.log('No upcoming events found');
+            showInfo('No upcoming events found');
           }
         } else {
-          setError('Failed to fetch events. Please try again later.');
+          const errorMsg = 'Failed to fetch events. Please try again later.';
+          setError(errorMsg);
+          showError(errorMsg);
           console.error('Failed to fetch events:', response?.message);
         }
       } catch (error) {
-        setError('An error occurred while fetching events. Please try again later.');
+        const errorMsg = 'An error occurred while fetching events. Please try again later.';
+        setError(errorMsg);
+        showError(errorMsg);
         console.error('Error fetching events:', error);
       } finally {
         setLoading(false);
@@ -74,12 +81,33 @@ const Events = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [showSuccess, showError, showInfo]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // In a real app, you would filter the events based on the search query
-    console.log('Searching for:', searchQuery);
+
+    if (!searchQuery.trim() && filterType === 'all') {
+      showInfo('Please enter a search term or select an event type');
+      return;
+    }
+
+    // The filtering is done by the filteredEvents variable
+    const results = events.filter(event => {
+      const matchesSearch = !searchQuery.trim() ||
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.location.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesFilter = filterType === 'all' || event.type === filterType;
+
+      return matchesSearch && matchesFilter;
+    });
+
+    if (results.length > 0) {
+      showSuccess(`Found ${results.length} events matching your criteria`);
+    } else {
+      showInfo('No events found matching your criteria');
+    }
   };
 
   const filteredEvents = events.filter(event => {

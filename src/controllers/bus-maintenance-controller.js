@@ -63,13 +63,13 @@ export const getMaintenanceByBusId = async (req, res) => {
     try {
         const { busId } = req.params;
         const { page, limit } = req.query;
-        
+
         const maintenance = await busMaintenanceService.getMaintenanceByBusId(
-            busId, 
-            parseInt(page) || 1, 
+            busId,
+            parseInt(page) || 1,
             parseInt(limit) || 10
         );
-        
+
         return res.status(200).json({
             data: maintenance,
             message: "Fetched maintenance by bus ID successfully",
@@ -97,12 +97,13 @@ export const getMaintenanceByBusId = async (req, res) => {
 
 export const getUpcomingMaintenance = async (req, res) => {
     try {
-        const { days } = req.query;
-        
+        const { page, limit } = req.query;
+
         const upcomingMaintenance = await busMaintenanceService.getUpcomingMaintenance(
-            parseInt(days) || 30
+            parseInt(page) || 1,
+            parseInt(limit) || 10
         );
-        
+
         return res.status(200).json({
             data: upcomingMaintenance,
             message: "Fetched upcoming maintenance successfully",
@@ -123,9 +124,14 @@ export const getUpcomingMaintenance = async (req, res) => {
 export const getMaintenanceHistory = async (req, res) => {
     try {
         const { busId } = req.params;
-        
-        const maintenanceHistory = await busMaintenanceService.getMaintenanceHistory(busId);
-        
+        const { page, limit } = req.query;
+
+        const maintenanceHistory = await busMaintenanceService.getMaintenanceHistory(
+            busId,
+            parseInt(page) || 1,
+            parseInt(limit) || 10
+        );
+
         return res.status(200).json({
             data: maintenanceHistory,
             message: "Fetched maintenance history successfully",
@@ -184,7 +190,7 @@ export const updateMaintenanceStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        
+
         if (!status) {
             return res.status(400).json({
                 data: {},
@@ -193,7 +199,7 @@ export const updateMaintenanceStatus = async (req, res) => {
                 success: false
             });
         }
-        
+
         const maintenance = await busMaintenanceService.updateMaintenanceStatus(id, status);
         return res.status(200).json({
             data: maintenance,
@@ -224,13 +230,13 @@ export const markMaintenanceAsCompleted = async (req, res) => {
     try {
         const { id } = req.params;
         const { completedDate, notes } = req.body;
-        
+
         const maintenance = await busMaintenanceService.markMaintenanceAsCompleted(
-            id, 
+            id,
             completedDate ? new Date(completedDate) : new Date(),
             notes
         );
-        
+
         return res.status(200).json({
             data: maintenance,
             message: "Marked maintenance as completed successfully",
@@ -260,7 +266,7 @@ export const scheduleMaintenance = async (req, res) => {
     try {
         const { busId } = req.params;
         const { maintenanceType, description, scheduledDate } = req.body;
-        
+
         if (!maintenanceType || !description || !scheduledDate) {
             return res.status(400).json({
                 data: {},
@@ -269,14 +275,14 @@ export const scheduleMaintenance = async (req, res) => {
                 success: false
             });
         }
-        
+
         const maintenance = await busMaintenanceService.scheduleMaintenance(
             busId,
             maintenanceType,
             description,
             new Date(scheduledDate)
         );
-        
+
         return res.status(201).json({
             data: maintenance,
             message: "Scheduled maintenance successfully",
@@ -296,6 +302,33 @@ export const scheduleMaintenance = async (req, res) => {
         return res.status(500).json({
             data: {},
             message: "Unable to schedule maintenance",
+            error: error.message,
+            success: false
+        });
+    }
+};
+
+export const getAllMaintenance = async (req, res) => {
+    try {
+        const { page, limit, status, busId } = req.query;
+
+        const result = await busMaintenanceService.getAllMaintenance(
+            parseInt(page) || 1,
+            parseInt(limit) || 10,
+            { status, busId }
+        );
+
+        return res.status(200).json({
+            data: result,
+            message: "Maintenance records fetched successfully",
+            error: {},
+            success: true
+        });
+    } catch (error) {
+        console.log("Unable to fetch maintenance records, error from bus-maintenance-controller: ", error);
+        return res.status(500).json({
+            data: {},
+            message: "Unable to fetch maintenance records",
             error: error.message,
             success: false
         });

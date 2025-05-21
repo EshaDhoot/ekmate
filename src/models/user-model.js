@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
     },
     reg_number: {
         type: String,
-        unique: true
+        unique: true,
+        required: true
     },
     email: {
         type: String,
@@ -25,7 +26,8 @@ const userSchema = new mongoose.Schema({
     },
     phone_number: {
         type: String,
-        unique: true
+        unique: true,
+        sparse: true
     },
     password: {
         type: String,
@@ -90,9 +92,14 @@ userSchema.methods.comparePassword = async function compare(password) {
 }
 
 userSchema.methods.genJWT = function generate() {
-    return jwt.sign({id: this._id, email: this.email}, SECRET_KEY, {
-        expiresIn: '1d'
-    })
+    const payload = {
+        id: this._id,
+        email: this.email,
+        role: this.role || 'student'
+    };
+    return jwt.sign(payload, SECRET_KEY, {
+        expiresIn: '1h'
+    });
 }
 
 

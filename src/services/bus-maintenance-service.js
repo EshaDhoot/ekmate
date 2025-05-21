@@ -16,13 +16,13 @@ class BusMaintenanceService {
             }
 
             const maintenance = await this.busMaintenanceRepository.create(payload);
-            
+
             // Update the bus's status and next maintenance date
             await this.busRepository.update(payload.busId, {
                 status: payload.maintenanceType === 'emergency' ? 'maintenance' : bus.status,
                 nextMaintenance: payload.scheduledDate
             });
-            
+
             console.log("createMaintenance method called successfully from BusMaintenanceService");
             return maintenance;
         } catch (error) {
@@ -59,9 +59,9 @@ class BusMaintenanceService {
         }
     }
 
-    async getUpcomingMaintenance(days = 30) {
+    async getUpcomingMaintenance(page = 1, limit = 10) {
         try {
-            const upcomingMaintenance = await this.busMaintenanceRepository.getUpcomingMaintenance(days);
+            const upcomingMaintenance = await this.busMaintenanceRepository.getUpcomingMaintenance(page, limit);
             console.log("getUpcomingMaintenance method called successfully from BusMaintenanceService");
             return upcomingMaintenance;
         } catch (error) {
@@ -70,7 +70,7 @@ class BusMaintenanceService {
         }
     }
 
-    async getMaintenanceHistory(busId) {
+    async getMaintenanceHistory(busId, page = 1, limit = 10) {
         try {
             // Validate that the bus exists
             const bus = await this.busRepository.findById(busId);
@@ -78,7 +78,7 @@ class BusMaintenanceService {
                 throw new Error("bus not found");
             }
 
-            const maintenanceHistory = await this.busMaintenanceRepository.getMaintenanceHistory(busId);
+            const maintenanceHistory = await this.busMaintenanceRepository.getMaintenanceHistory(busId, page, limit);
             console.log("getMaintenanceHistory method called successfully from BusMaintenanceService");
             return maintenanceHistory;
         } catch (error) {
@@ -101,7 +101,7 @@ class BusMaintenanceService {
     async updateMaintenanceStatus(id, status) {
         try {
             const maintenance = await this.busMaintenanceRepository.updateStatus(id, status);
-            
+
             // If the status is completed, update the bus's status and last maintenance date
             if (status === 'completed') {
                 const bus = await this.busRepository.findById(maintenance.busId);
@@ -112,7 +112,7 @@ class BusMaintenanceService {
                     });
                 }
             }
-            
+
             console.log("updateMaintenanceStatus method called successfully from BusMaintenanceService");
             return maintenance;
         } catch (error) {
@@ -124,7 +124,7 @@ class BusMaintenanceService {
     async markMaintenanceAsCompleted(id, completedDate, notes) {
         try {
             const maintenance = await this.busMaintenanceRepository.markAsCompleted(id, completedDate, notes);
-            
+
             // Update the bus's status and last maintenance date
             const bus = await this.busRepository.findById(maintenance.busId);
             if (bus) {
@@ -133,7 +133,7 @@ class BusMaintenanceService {
                     lastMaintenance: completedDate || new Date()
                 });
             }
-            
+
             console.log("markMaintenanceAsCompleted method called successfully from BusMaintenanceService");
             return maintenance;
         } catch (error) {
@@ -157,16 +157,38 @@ class BusMaintenanceService {
                 scheduledDate,
                 status: 'scheduled'
             });
-            
+
             // Update the bus's next maintenance date
             await this.busRepository.update(busId, {
                 nextMaintenance: scheduledDate
             });
-            
+
             console.log("scheduleMaintenance method called successfully from BusMaintenanceService");
             return maintenance;
         } catch (error) {
             console.log("scheduleMaintenance method called from BusMaintenanceService and throws error: ", error);
+            throw error;
+        }
+    }
+
+    async getRecentMaintenance(limit = 5) {
+        try {
+            const maintenance = await this.busMaintenanceRepository.findRecent(limit);
+            console.log("getRecentMaintenance method called successfully from BusMaintenanceService");
+            return maintenance;
+        } catch (error) {
+            console.log("getRecentMaintenance method called from BusMaintenanceService and throws error: ", error);
+            throw error;
+        }
+    }
+
+    async getAllMaintenance(page = 1, limit = 10, query = {}) {
+        try {
+            const maintenance = await this.busMaintenanceRepository.findAll(page, limit, query);
+            console.log("getAllMaintenance method called successfully from BusMaintenanceService");
+            return maintenance;
+        } catch (error) {
+            console.log("getAllMaintenance method called from BusMaintenanceService and throws error: ", error);
             throw error;
         }
     }

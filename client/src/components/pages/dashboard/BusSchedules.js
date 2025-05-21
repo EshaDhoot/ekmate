@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Form, Button, Badge, Alert, Spinner } from 'react-bootstrap';
-import { FaSearch, FaMapMarkerAlt, FaClock, FaBus } from 'react-icons/fa';
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
+import { FaSearch, FaBus, FaUserAlt, FaPhoneAlt, FaMapMarkerAlt, FaClock, FaFilter } from 'react-icons/fa';
 import { busService } from '../../../services';
+import { useTheme } from '../../../context/ThemeContext';
+import { useToast } from '../../../context/ToastContext';
 import './BusSchedules.css';
 
 const BusSchedules = () => {
@@ -9,59 +11,39 @@ const BusSchedules = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [schedules, setSchedules] = useState([]);
+  const { theme } = useTheme();
+  const { showSuccess, showError, showInfo } = useToast();
 
-  // Fetch bus data from API
   useEffect(() => {
     const fetchBusData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Prepare search parameters
-        const searchParams = {};
-        if (searchQuery) {
-          // We'll search in both route and bus number
-          // The backend will handle this with the $or operator in MongoDB
-          searchParams.route = searchQuery;
-          searchParams.busNumber = searchQuery;
-        }
-
-        // Fetch buses from API with search parameters
+        const searchParams = searchQuery ? { route: searchQuery, busNumber: searchQuery } : {};
         const response = await busService.getAllBuses(searchParams);
 
-        // Log the response to see what we're getting
-        // console.log('Bus API Response:', response);
+        if (response && response.success && response.data && response.data.buses) {
+          setSchedules(response.data.buses);
 
-        // Check if response has data.buses array
-        if (response && response.success && response.data && response.data.buses && Array.isArray(response.data.buses)) {
-          // Transform bus data into schedule format
-          const busSchedules = response.data.buses.map((bus, index) => {
-            // Extract route information from the first route if available
-            const route = bus.routes && bus.routes.length > 0
-              ? bus.routes[0]
-              : { pickupPoint: 'Unknown', time: '08:00 AM' };
-
-            return {
-              id: bus._id || index + 1,
-              route: bus.title || 'Unknown Route',
-              departureTime: route.time || '08:00 AM',
-              arrivalTime: '08:45 AM', // Estimated arrival time
-              busNumber: bus.busNumber || `B${index + 101}`,
-              stops: bus.routes
-                ? bus.routes.map(r => r.pickupPoint || 'Unknown Stop')
-                : ['Main Gate', 'Campus']
-            };
-          });
-
-          setSchedules(busSchedules);
+          // Show toast message for search results
+          if (searchQuery) {
+            if (response.data.buses.length > 0) {
+              showSuccess(`Found ${response.data.buses.length} bus routes matching "${searchQuery}"`);
+            } else {
+              showInfo(`No bus routes found matching "${searchQuery}"`);
+            }
+          }
         } else {
           console.error('Failed to fetch buses:', response?.message);
           setError('Failed to fetch bus schedules. Please try again later.');
+          showError('Failed to fetch bus schedules. Please try again later.');
           setSchedules([]);
         }
       } catch (error) {
         console.error('Error fetching bus data:', error);
         setError('An error occurred while fetching bus schedules. Please try again later.');
+        showError('An error occurred while fetching bus schedules. Please try again later.');
         setSchedules([]);
       } finally {
         setLoading(false);
@@ -69,16 +51,22 @@ const BusSchedules = () => {
     };
 
     fetchBusData();
-  }, [searchQuery]); // Re-fetch when search query changes
+  }, [searchQuery, showSuccess, showError, showInfo]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // The search is handled by the useEffect hook when searchQuery changes
-    console.log('Searching for:', searchQuery);
+
+    if (!searchQuery.trim()) {
+      showInfo('Please enter a route or bus number to search');
+      return;
+    }
+
+    // The actual search is handled by the useEffect hook when searchQuery changes
+    showInfo(`Searching for "${searchQuery}"...`);
   };
 
   return (
-    <Container fluid>
+    <Container>
       <div className="page-header">
         <h1>Bus Schedules</h1>
         <p className="text-muted">View and search for bus schedules</p>
@@ -90,13 +78,13 @@ const BusSchedules = () => {
         </Alert>
       )}
 
-      <Card className="mb-4">
+      <Card className="mb-4 search-card">
         <Card.Body>
           <Form onSubmit={handleSearch}>
             <Row className="align-items-end">
-              <Col md={8} lg={10}>
+              <Col md={9} lg={10}>
                 <Form.Group className="mb-3 mb-md-0">
-                  <Form.Label>Search</Form.Label>
+                  <Form.Label>Search Bus Routes</Form.Label>
                   <div className="search-input">
                     <FaSearch className="search-icon" />
                     <Form.Control
@@ -108,16 +96,19 @@ const BusSchedules = () => {
                   </div>
                 </Form.Group>
               </Col>
-
-              <Col md={4} lg={2}>
-                <Button type="submit" variant="primary" className="w-100">
-                  Search
+              <Col md={3} lg={2}>
+                <Button type="submit" variant="primary" className="w-100 search-button">
+                  <FaSearch className="me-2" /> Search
                 </Button>
               </Col>
             </Row>
           </Form>
         </Card.Body>
       </Card>
+
+      <div className="bus-route-info-header">
+        <h2>Bus Routes</h2>
+      </div>
 
       {loading ? (
         <div className="text-center my-5">
@@ -127,74 +118,89 @@ const BusSchedules = () => {
           <p className="mt-2">Loading schedules...</p>
         </div>
       ) : (
-        <Card>
-          <Card.Header>
-            <h5 className="mb-0">
-              <FaBus className="me-2" />
-              Bus Schedules
-            </h5>
-          </Card.Header>
-          <Card.Body className="p-0">
-            {schedules.length > 0 ? (
-              <div className="table-responsive">
-                <table className="table table-hover mb-0">
-                  <thead>
-                    <tr>
-                      <th>Bus Number</th>
-                      <th>Route</th>
-                      <th>Departure</th>
-                      <th>Arrival</th>
-                      <th>Stops</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {schedules.map(schedule => (
-                      <tr key={schedule.id}>
-                        <td>
-                          <Badge bg="primary">{schedule.busNumber}</Badge>
-                        </td>
-                        <td>{schedule.route}</td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <FaClock className="me-2 text-primary" />
-                            {schedule.departureTime}
+        <div className="bus-schedules">
+          {schedules.length > 0 ? (
+            schedules.map((bus) => (
+              <Card key={bus._id}>
+                <Card.Body className="p-0">
+                  <div className="bus-card-header">
+                    <div className="bus-number">
+                      <FaBus className="bus-icon" />
+                      <span>Bus #{bus.busNumber}</span>
+                    </div>
+                    <div className="driver-info">
+                      <FaUserAlt className="driver-icon" />
+                      <div>
+                        <div className="driver-name">{bus.driver?.name || 'Unknown'}</div>
+                        {bus.driver?.phone_number && (
+                          <div className="driver-phone">
+                            <FaPhoneAlt className="phone-icon" />
+                            {bus.driver.phone_number}
                           </div>
-                        </td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <FaClock className="me-2 text-success" />
-                            {schedule.arrivalTime}
-                          </div>
-                        </td>
-                        <td>
-                          <div className="stops-list">
-                            {schedule.stops.map((stop, index) => (
-                              <span key={index} className="stop-item">
-                                <FaMapMarkerAlt className="stop-icon" />
-                                {stop}
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="table-responsive">
+                    <table className="table table-bordered route-table">
+                      <thead>
+                        <tr>
+                          <th width="15%">
+                            <div className="d-flex align-items-center">
+                              <span className="th-text">S.NO</span>
+                            </div>
+                          </th>
+                          <th width="55%">
+                            <div className="d-flex align-items-center">
+                              <FaMapMarkerAlt className="th-icon" />
+                              <span className="th-text">PICK UP POINT</span>
+                            </div>
+                          </th>
+                          <th width="30%">
+                            <div className="d-flex align-items-center">
+                              <FaClock className="th-icon" />
+                              <span className="th-text">TIME</span>
+                            </div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bus.routes.map((route, index) => (
+                          <tr key={route._id}>
+                            <td className="text-center">{index + 1}</td>
+                            <td>
+                              <span className="pickup-point">{route.pickupPoint}</span>
+                            </td>
+                            <td className="text-center">
+                              <span className="time-badge">
+                                {route.time}
                               </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td>
-                          <Button variant="primary" size="sm">Track</Button>
-                          <Button variant="outline-primary" size="sm" className="ms-2">Reserve</Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="no-results">
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card.Body>
+              </Card>
+            ))
+          ) : (
+            <div className="no-results">
+              <div className="no-results-content">
                 <FaBus className="no-results-icon" />
-                <h5>No schedules found</h5>
-                <p>Try changing your search criteria</p>
+                <h5>No bus routes found</h5>
+                <p>Try changing your search criteria or check back later</p>
+                <Button
+                  variant="outline-primary"
+                  onClick={() => setSearchQuery('')}
+                  className="mt-3"
+                >
+                  View All Routes
+                </Button>
               </div>
-            )}
-          </Card.Body>
-        </Card>
+            </div>
+          )}
+        </div>
       )}
     </Container>
   );

@@ -71,13 +71,13 @@ export const getFeedbackByBusId = async (req, res) => {
     try {
         const { busId } = req.params;
         const { page, limit } = req.query;
-        
+
         const feedback = await feedbackService.getFeedbackByBusId(
-            busId, 
-            parseInt(page) || 1, 
+            busId,
+            parseInt(page) || 1,
             parseInt(limit) || 10
         );
-        
+
         return res.status(200).json({
             data: feedback,
             message: "Fetched feedback by bus ID successfully",
@@ -107,13 +107,13 @@ export const getFeedbackByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
         const { page, limit } = req.query;
-        
+
         const feedback = await feedbackService.getFeedbackByUserId(
-            userId, 
-            parseInt(page) || 1, 
+            userId,
+            parseInt(page) || 1,
             parseInt(limit) || 10
         );
-        
+
         return res.status(200).json({
             data: feedback,
             message: "Fetched feedback by user ID successfully",
@@ -172,7 +172,7 @@ export const respondToFeedback = async (req, res) => {
     try {
         const { id } = req.params;
         const { adminResponse } = req.body;
-        
+
         if (!adminResponse) {
             return res.status(400).json({
                 data: {},
@@ -181,7 +181,7 @@ export const respondToFeedback = async (req, res) => {
                 success: false
             });
         }
-        
+
         const feedback = await feedbackService.respondToFeedback(id, adminResponse);
         return res.status(200).json({
             data: feedback,
@@ -269,12 +269,12 @@ export const getFeedbackStats = async (req, res) => {
 export const getPendingFeedback = async (req, res) => {
     try {
         const { page, limit } = req.query;
-        
+
         const feedback = await feedbackService.getPendingFeedback(
-            parseInt(page) || 1, 
+            parseInt(page) || 1,
             parseInt(limit) || 10
         );
-        
+
         return res.status(200).json({
             data: feedback,
             message: "Fetched pending feedback successfully",
@@ -286,6 +286,32 @@ export const getPendingFeedback = async (req, res) => {
         return res.status(500).json({
             data: {},
             message: "Unable to fetch pending feedback",
+            error: error.message,
+            success: false
+        });
+    }
+};
+
+export const getAllFeedback = async (req, res) => {
+    try {
+        const { page, limit } = req.query;
+
+        const feedback = await feedbackService.getAllFeedback(
+            parseInt(page) || 1,
+            parseInt(limit) || 10
+        );
+
+        return res.status(200).json({
+            data: feedback,
+            message: "Fetched all feedback successfully",
+            error: {},
+            success: true
+        });
+    } catch (error) {
+        console.log("Unable to fetch all feedback, error from feedback-controller: ", error);
+        return res.status(500).json({
+            data: {},
+            message: "Unable to fetch all feedback",
             error: error.message,
             success: false
         });

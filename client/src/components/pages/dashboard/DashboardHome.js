@@ -147,9 +147,9 @@ const DashboardHome = () => {
   }, []);
 
   return (
-    <Container fluid>
+    <Container>
       <div className="dashboard-header">
-        <h1>Welcome, {currentUser?.name || 'User'}!</h1>
+        <h1>Welcome, {currentUser?.name || (currentUser?.email ? currentUser.email.split('@')[0].split('.')[0] : 'Guest')}!</h1>
         <p className="text-muted">Here's what's happening today</p>
       </div>
 

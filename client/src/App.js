@@ -1,15 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './context/ToastContext';
+import { ToastContainer } from 'react-toastify';
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import DashboardLayout from './components/dashboard/DashboardLayout';
+import AdminLayout from './components/admin/AdminLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import AdminRoute from './components/auth/AdminRoute';
 
 // Page Components
 import Home from './components/pages/Home';
@@ -27,10 +32,22 @@ import Support from './components/pages/dashboard/Support';
 import BusTracking from './components/pages/dashboard/BusTracking';
 import Feedback from './components/pages/dashboard/Feedback';
 import UserPreferences from './components/pages/dashboard/UserPreferences';
+import UserProfile from './components/pages/dashboard/UserProfile';
+import UserSettings from './components/pages/dashboard/UserSettings';
+
+// Admin Pages
+import AdminHome from './components/admin/AdminHome';
+import AdminBuses from './components/admin/AdminBuses';
+import AdminDrivers from './components/admin/AdminDrivers';
+import AdminUsers from './components/admin/AdminUsers';
+import AdminEvents from './components/admin/AdminEvents';
+import AdminFeedback from './components/admin/AdminFeedback';
+import AdminMaintenance from './components/admin/AdminMaintenance';
+import AdminAnalytics from './components/admin/AdminAnalytics';
 
 // Root component to handle authentication redirects
 const AppRoutes = () => {
-  const { loading, isAuthenticated } = useAuth();
+  const { loading, isAuthenticated, currentUser } = useAuth();
 
   // Show loading indicator while checking authentication
   if (loading) {
@@ -49,24 +66,24 @@ const AppRoutes = () => {
         {/* Public Routes */}
         <Route path="/" element={
           isAuthenticated() ?
-          <Navigate to="/dashboard" replace /> :
+          (currentUser?.role === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />) :
           <><Navbar /><Home /><Footer /></>
         } />
         <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
         <Route path="/contact" element={<><Navbar /><Contact /><Footer /></>} />
         <Route path="/signup" element={
           isAuthenticated() ?
-          <Navigate to="/dashboard" replace /> :
+          (currentUser?.role === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />) :
           <><Navbar /><SignUp /><Footer /></>
         } />
         <Route path="/simple-signup" element={
           isAuthenticated() ?
-          <Navigate to="/dashboard" replace /> :
+          (currentUser?.role === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />) :
           <><Navbar /><SimpleSignUp /><Footer /></>
         } />
         <Route path="/signin" element={
           isAuthenticated() ?
-          <Navigate to="/dashboard" replace /> :
+          (currentUser?.role === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />) :
           <><Navbar /><SignIn /><Footer /></>
         } />
 
@@ -80,6 +97,22 @@ const AppRoutes = () => {
             <Route path="track" element={<BusTracking />} />
             <Route path="feedback" element={<Feedback />} />
             <Route path="preferences" element={<UserPreferences />} />
+            <Route path="profile" element={<UserProfile />} />
+            <Route path="settings" element={<UserSettings />} />
+          </Route>
+        </Route>
+
+        {/* Protected Admin Routes */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminHome />} />
+            <Route path="buses" element={<AdminBuses />} />
+            <Route path="drivers" element={<AdminDrivers />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="events" element={<AdminEvents />} />
+            <Route path="feedback" element={<AdminFeedback />} />
+            <Route path="maintenance" element={<AdminMaintenance />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
           </Route>
         </Route>
       </Routes>
@@ -91,9 +124,12 @@ function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Router>
-          <AppRoutes />
-        </Router>
+        <ToastProvider>
+          <Router>
+            <ToastContainer />
+            <AppRoutes />
+          </Router>
+        </ToastProvider>
       </ThemeProvider>
     </AuthProvider>
   );

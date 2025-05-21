@@ -4,7 +4,18 @@ const router = express.Router();
 import { validateEmailOrPhone, validateOTP, validateSignIn } from '../../middlewares/validation-middleware.js';
 import { authenticateJWT, isAdmin } from '../../middlewares/auth-middleware.js';
 
-import { signUp, verifyOTP, signIn } from '../../controllers/user-controller.js';
+import {
+    signUp,
+    verifyOTP,
+    verifyAdminOTP,
+    signIn,
+    getCurrentUser,
+    updateUserProfile,
+    changePassword,
+    uploadProfilePicture,
+    upload,
+    getAllUsers
+} from '../../controllers/user-controller.js';
 import { createBus, getBus, getBusById, updateBus, deleteBus } from '../../controllers/bus-controller.js';
 import { createQuery } from '../../controllers/contact-form-controller.js';
 
@@ -36,7 +47,8 @@ import {
     respondToFeedback,
     getAverageRating,
     getFeedbackStats,
-    getPendingFeedback
+    getPendingFeedback,
+    getAllFeedback
 } from '../../controllers/feedback-controller.js';
 
 import {
@@ -59,7 +71,8 @@ import {
     assignBusToEvent,
     updateEventStatus,
     approveEvent,
-    cancelEvent
+    cancelEvent,
+    getAllEvents
 } from '../../controllers/event-transportation-controller.js';
 
 import {
@@ -71,7 +84,8 @@ import {
     updateMaintenance,
     updateMaintenanceStatus,
     markMaintenanceAsCompleted,
-    scheduleMaintenance
+    scheduleMaintenance,
+    getAllMaintenance
 } from '../../controllers/bus-maintenance-controller.js';
 
 import {
@@ -87,10 +101,32 @@ import {
     signIn as driverSignIn
 } from '../../controllers/driver-controller.js';
 
+// Import admin controller
+import {
+    getDashboardStats,
+    getRecentActivities,
+    getAdminUpcomingEvents
+} from '../../controllers/admin-controller.js';
+
+// Import analytics controller
+import {
+    getBusUtilization,
+    getRouteDistribution,
+    getStats
+} from '../../controllers/analytics-controller.js';
+
 // Authentication routes
 router.post('/auth/sign-up', validateEmailOrPhone, signUp);
 router.post('/auth/verify-otp', validateOTP, verifyOTP);
 router.post('/auth/sign-in', validateSignIn, signIn);
+router.post('/auth/verify-admin-otp', validateOTP, verifyAdminOTP);
+
+// User routes
+router.get('/users', authenticateJWT, isAdmin, getAllUsers);
+router.get('/users/me', authenticateJWT, getCurrentUser);
+router.put('/users/me', authenticateJWT, updateUserProfile);
+router.put('/users/change-password', authenticateJWT, changePassword);
+router.post('/users/me/profile-picture', authenticateJWT, upload.single('profilePicture'), uploadProfilePicture);
 
 // Driver authentication routes
 router.post('/driver/auth/send-otp', sendOTP);
@@ -128,6 +164,7 @@ router.get('/users/:userId/favorite-routes', authenticateJWT, getFavoriteRoutes)
 // Feedback routes
 router.post('/feedback', authenticateJWT, createFeedback);
 // Define specific routes before the generic :id route
+router.get('/feedback', getAllFeedback);
 router.get('/feedback/buses/:busId', getFeedbackByBusId);
 router.get('/feedback/users/:userId', authenticateJWT, getFeedbackByUserId);
 router.get('/feedback/buses/:busId/rating', getAverageRating);
@@ -138,7 +175,12 @@ router.get('/feedback/:id', getFeedbackById);
 router.put('/feedback/:id', authenticateJWT, updateFeedback);
 router.put('/feedback/:id/respond', authenticateJWT, isAdmin, respondToFeedback);
 
-// Bus Analytics routes
+// Analytics routes (from analytics-controller.js)
+router.get('/analytics/bus-utilization', authenticateJWT, isAdmin, getBusUtilization);
+router.get('/analytics/route-distribution', authenticateJWT, isAdmin, getRouteDistribution);
+router.get('/analytics/stats', authenticateJWT, isAdmin, getStats);
+
+// Bus Analytics routes (from bus-analytics-controller.js)
 router.post('/analytics', authenticateJWT, isAdmin, createAnalytics);
 // Define specific routes before the generic :id route
 router.get('/analytics/buses/:busId', authenticateJWT, isAdmin, getAnalyticsByBusIdAndDate);
@@ -153,6 +195,7 @@ router.put('/analytics/:id', authenticateJWT, isAdmin, updateAnalytics);
 // Event Transportation routes
 router.post('/events', authenticateJWT, isAdmin, createEvent);
 // Define specific routes before the generic :id route
+router.get('/events', getAllEvents);
 router.get('/events/upcoming', getUpcomingEvents);
 router.get('/events/pending', authenticateJWT, isAdmin, getPendingEvents);
 // Generic :id route should come after specific routes
@@ -166,6 +209,7 @@ router.put('/events/:id/cancel', authenticateJWT, isAdmin, cancelEvent);
 // Bus Maintenance routes
 router.post('/maintenance', authenticateJWT, isAdmin, createMaintenance);
 // Define specific routes before the generic :id route
+router.get('/maintenance', getAllMaintenance);
 router.get('/maintenance/upcoming', authenticateJWT, isAdmin, getUpcomingMaintenance);
 router.get('/maintenance/buses/:busId', authenticateJWT, getMaintenanceByBusId);
 router.get('/maintenance/buses/:busId/history', authenticateJWT, getMaintenanceHistory);
@@ -185,5 +229,10 @@ router.get('/drivers/expiring-licenses', authenticateJWT, isAdmin, getDriversWit
 router.get('/drivers/:id', authenticateJWT, getDriverById);
 router.put('/drivers/:id', authenticateJWT, isAdmin, updateDriver);
 router.post('/drivers/:id/assign-bus', authenticateJWT, isAdmin, assignBus);
+
+// Admin dashboard routes
+router.get('/admin/dashboard/stats', authenticateJWT, isAdmin, getDashboardStats);
+router.get('/admin/activities/recent', authenticateJWT, isAdmin, getRecentActivities);
+router.get('/admin/events/upcoming', authenticateJWT, isAdmin, getAdminUpcomingEvents);
 
 export default router;

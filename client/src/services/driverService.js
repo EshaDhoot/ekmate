@@ -14,7 +14,12 @@ const driverService = {
       const response = await axiosInstance.post('/drivers', driverData);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to create driver' };
+      console.error('Error in createDriver:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to create driver',
+        data: null
+      };
     }
   },
 
@@ -90,7 +95,12 @@ const driverService = {
       const response = await axiosInstance.get(`/drivers/${id}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch driver details' };
+      console.error('Error in getDriverById:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch driver details',
+        data: null
+      };
     }
   },
 
@@ -98,12 +108,17 @@ const driverService = {
    * Get all drivers (admin only)
    * @returns {Promise} Promise with all drivers data
    */
-  getAllDrivers: async () => {
+  getAllDrivers: async (params = {}) => {
     try {
-      const response = await axiosInstance.get('/drivers');
+      const response = await axiosInstance.get('/drivers', { params });
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch all drivers' };
+      console.error('Error in getAllDrivers:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch all drivers',
+        data: []
+      };
     }
   },
 
@@ -116,7 +131,12 @@ const driverService = {
       const response = await axiosInstance.get('/drivers/active');
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch active drivers' };
+      console.error('Error in getActiveDrivers:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch active drivers',
+        data: []
+      };
     }
   },
 
@@ -124,12 +144,17 @@ const driverService = {
    * Get drivers with expiring licenses (admin only)
    * @returns {Promise} Promise with drivers data
    */
-  getDriversWithExpiringLicenses: async () => {
+  getDriversWithExpiringLicenses: async (days = 30) => {
     try {
-      const response = await axiosInstance.get('/drivers/expiring-licenses');
+      const response = await axiosInstance.get('/drivers/expiring-licenses', { params: { days } });
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch drivers with expiring licenses' };
+      console.error('Error in getDriversWithExpiringLicenses:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch drivers with expiring licenses',
+        data: []
+      };
     }
   },
 
@@ -144,7 +169,12 @@ const driverService = {
       const response = await axiosInstance.put(`/drivers/${id}`, driverData);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to update driver' };
+      console.error('Error in updateDriver:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update driver',
+        data: null
+      };
     }
   },
 
@@ -159,7 +189,31 @@ const driverService = {
       const response = await axiosInstance.post(`/drivers/${id}/assign-bus`, data);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to assign bus to driver' };
+      console.error('Error in assignBus:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to assign bus to driver',
+        data: null
+      };
+    }
+  },
+
+  /**
+   * Delete a driver (admin only)
+   * @param {string} id - Driver ID
+   * @returns {Promise} Promise with deletion status
+   */
+  deleteDriver: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`/drivers/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error in deleteDriver:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete driver',
+        data: null
+      };
     }
   }
 };

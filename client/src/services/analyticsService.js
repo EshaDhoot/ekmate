@@ -40,8 +40,8 @@ const analyticsService = {
    */
   getAnalyticsByBusIdAndDate: async (busId, date) => {
     try {
-      const url = date 
-        ? `/analytics/buses/${busId}?date=${date}` 
+      const url = date
+        ? `/analytics/buses/${busId}?date=${date}`
         : `/analytics/buses/${busId}`;
       const response = await axiosInstance.get(url);
       return response.data;
@@ -123,6 +123,89 @@ const analyticsService = {
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Failed to record passenger count' };
+    }
+  },
+
+  /**
+   * Get analytics for a specific bus and date range
+   * @param {string} busId - Bus ID
+   * @param {string} startDate - Start date in ISO format
+   * @param {string} endDate - End date in ISO format
+   * @returns {Promise} Promise with analytics data
+   */
+  getAnalyticsByBusIdAndDateRange: async (busId, startDate, endDate) => {
+    try {
+      const response = await axiosInstance.get(
+        `/analytics/buses/${busId}/date-range?startDate=${startDate}&endDate=${endDate}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error in getAnalyticsByBusIdAndDateRange:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch analytics for date range',
+        data: []
+      };
+    }
+  },
+
+  /**
+   * Get bus utilization data
+   * @returns {Promise} Promise with bus utilization data
+   */
+  getBusUtilization: async () => {
+    try {
+      // Use the dedicated endpoint for bus utilization
+      const response = await axiosInstance.get('/analytics/bus-utilization');
+      return response.data;
+    } catch (error) {
+      console.error('Error in getBusUtilization:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch bus utilization data',
+        data: []
+      };
+    }
+  },
+
+  /**
+   * Get route distribution data
+   * @returns {Promise} Promise with route distribution data
+   */
+  getRouteDistribution: async () => {
+    try {
+      // Use the dedicated endpoint for route distribution
+      const response = await axiosInstance.get('/analytics/route-distribution');
+      return response.data;
+    } catch (error) {
+      console.error('Error in getRouteDistribution:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch route distribution data',
+        data: []
+      };
+    }
+  },
+
+  /**
+   * Get analytics statistics
+   * @returns {Promise} Promise with analytics statistics
+   */
+  getAnalyticsStats: async () => {
+    try {
+      // Use the dedicated endpoint for analytics stats
+      const response = await axiosInstance.get('/analytics/stats');
+      return response.data;
+    } catch (error) {
+      console.error('Error in getAnalyticsStats:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch analytics statistics',
+        data: {
+          totalPassengers: 0,
+          averagePassengersPerDay: 0
+        }
+      };
     }
   }
 };

@@ -17,7 +17,19 @@ export const hashPassword = (password) => {
 };
 
 export const verifyHashedOTP = (otp, hashedOtp) => {
+    if (!otp || !hashedOtp) {
+        console.log('verifyHashedOTP: Missing OTP or hashedOtp', { otp, hashedOtp });
+        return false;
+    }
+
     const hashedInputOTP = hashOTP(otp);
+    console.log('verifyHashedOTP comparison:', {
+        inputOtp: otp,
+        hashedInputOTP,
+        storedHashedOtp: hashedOtp,
+        match: hashedInputOTP === hashedOtp
+    });
+
     return hashedInputOTP === hashedOtp;
 };
 

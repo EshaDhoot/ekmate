@@ -156,7 +156,7 @@ const TopNavbar = ({ toggleSidebar }) => {
           {showProfileDropdown && (
             <div className="profile-dropdown">
               <div className="profile-header">
-                <h6>{currentUser?.name || 'User'}</h6>
+                <h6>{currentUser?.name || (currentUser?.email ? currentUser.email.split('@')[0].split('.')[0] : 'Guest')}</h6>
                 <p>{currentUser?.email || ''}</p>
               </div>
 

@@ -3,7 +3,13 @@ import { PORT } from './config/server-config.js'
 import { connectToDB } from './config/db-config.js';
 // import { unverifiedUserCronJob } from './helpers/cronJob-helper.js';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import apiRoutes from './routes/index.js';
+
+// Get directory name in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -14,6 +20,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Serve static files from the public directory
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 app.use('/ekmate/api', apiRoutes);
 

@@ -9,3 +9,6 @@ export { default as analyticsService } from './analyticsService';
 export { default as maintenanceService } from './maintenanceService';
 export { default as gpsLocationService } from './gpsLocationService';
 export { default as contactFormService } from './contactFormService';
+export { default as userService } from './userService';
+export { default as profileService } from './profileService';
+export { default as adminService } from './adminService';

@@ -127,6 +127,64 @@ class EventTransportationRepository {
             throw error;
         }
     }
+
+    async findRecent(limit = 5) {
+        try {
+            const events = await EventTransportation.find()
+                .sort({ createdAt: -1 })
+                .limit(limit);
+
+            console.log("Recent events found successfully, findRecent method called successfully from EventTransportationRepository");
+            return events;
+        } catch (error) {
+            console.log("Unable to find recent events, findRecent method called from EventTransportationRepository and throws error: ", error);
+            throw error;
+        }
+    }
+
+    async findAll(page = 1, limit = 10, query = {}) {
+        try {
+            const skip = (page - 1) * limit;
+
+            // Build the query
+            const searchQuery = {};
+
+            // Add search criteria if provided
+            if (query.search) {
+                searchQuery.$or = [
+                    { eventName: { $regex: query.search, $options: 'i' } },
+                    { description: { $regex: query.search, $options: 'i' } }
+                ];
+            }
+
+            // Add status filter if provided
+            if (query.status) {
+                searchQuery.status = query.status;
+            }
+
+            // Execute the query with pagination
+            const events = await EventTransportation.find(searchQuery)
+                .populate('assignedBuses.busId', 'title busNumber')
+                .populate('assignedBuses.driver', 'name phone_number')
+                .sort({ startDate: -1 })
+                .skip(skip)
+                .limit(limit);
+
+            const total = await EventTransportation.countDocuments(searchQuery);
+
+            console.log("All events found successfully, findAll method called successfully from EventTransportationRepository");
+            return {
+                events,
+                total,
+                page,
+                limit,
+                pages: Math.ceil(total / limit)
+            };
+        } catch (error) {
+            console.log("Unable to find all events, findAll method called from EventTransportationRepository and throws error: ", error);
+            throw error;
+        }
+    }
 }
 
 export default EventTransportationRepository;

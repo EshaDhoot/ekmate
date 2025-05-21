@@ -297,3 +297,30 @@ export const cancelEvent = async (req, res) => {
         });
     }
 };
+
+export const getAllEvents = async (req, res) => {
+    try {
+        const { page, limit, search, status } = req.query;
+
+        const result = await eventTransportationService.getAllEvents(
+            parseInt(page) || 1,
+            parseInt(limit) || 10,
+            { search, status }
+        );
+
+        return res.status(200).json({
+            data: result,
+            message: "Events fetched successfully",
+            error: {},
+            success: true
+        });
+    } catch (error) {
+        console.log("Unable to fetch events, error from event-transportation-controller: ", error);
+        return res.status(500).json({
+            data: {},
+            message: "Unable to fetch events",
+            error: error.message,
+            success: false
+        });
+    }
+};

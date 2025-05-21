@@ -29,7 +29,10 @@ const NavbarComponent = () => {
             <Nav.Link as={Link} to="/" className="nav-link">Home</Nav.Link>
             <Nav.Link as={Link} to="/about" className="nav-link">About</Nav.Link>
             <Nav.Link as={Link} to="/contact" className="nav-link">Contact</Nav.Link>
-            {isAuthenticated() && (
+            {isAuthenticated() && currentUser?.role === 'admin' && (
+              <Nav.Link as={Link} to="/admin" className="nav-link">Admin Panel</Nav.Link>
+            )}
+            {isAuthenticated() && currentUser?.role !== 'admin' && (
               <Nav.Link as={Link} to="/dashboard" className="nav-link">Dashboard</Nav.Link>
             )}
           </Nav>
@@ -40,12 +43,22 @@ const NavbarComponent = () => {
               <Dropdown align="end">
                 <Dropdown.Toggle variant="link" id="dropdown-user" className="nav-link p-0 d-flex align-items-center">
                   <FaUserCircle size={24} className="me-2" />
-                  <span>{currentUser?.name || 'User'}</span>
+                  <span>{currentUser?.name || (currentUser?.email ? currentUser.email.split('@')[0].split('.')[0] : 'Guest')}</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item as={Link} to="/dashboard">Dashboard</Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/dashboard/profile">Profile</Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/dashboard/preferences">Preferences</Dropdown.Item>
+                  {currentUser?.role === 'admin' ? (
+                    <>
+                      <Dropdown.Item as={Link} to="/admin">Admin Panel</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/analytics">Analytics</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/users">Manage Users</Dropdown.Item>
+                    </>
+                  ) : (
+                    <>
+                      <Dropdown.Item as={Link} to="/dashboard">Dashboard</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/dashboard/profile">Profile</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/dashboard/preferences">Preferences</Dropdown.Item>
+                    </>
+                  )}
                   <Dropdown.Divider />
                   <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                 </Dropdown.Menu>

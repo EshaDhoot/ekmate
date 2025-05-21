@@ -28,6 +28,12 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
 body {
   font-family: 'Roboto', sans-serif;
   line-height: 1.6;
@@ -623,6 +629,16 @@ body.dark-theme {
 
   .section-title {
     font-size: 2rem;
+  }
+
+  /* Fix for mobile views to prevent vertical scrolling */
+  .container-fluid {
+    padding-bottom: 60px; /* Match bottom navbar height */
+  }
+
+  /* Ensure content doesn't overflow */
+  .row, .col, [class*="col-"] {
+    max-width: 100%;
   }
 }
 

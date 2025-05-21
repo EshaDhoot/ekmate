@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 import axiosInstance from '../../utils/axiosConfig';
 import './Auth.css';
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
 
   const [step, setStep] = useState(1); // 1: Registration, 2: OTP Verification
   const [formData, setFormData] = useState({
@@ -40,7 +42,9 @@ const SignUp = () => {
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      const errorMsg = 'Passwords do not match';
+      setError(errorMsg);
+      showError(errorMsg);
       setLoading(false);
       return;
     }
@@ -64,18 +68,25 @@ const SignUp = () => {
       const response = await axiosInstance.post('/auth/sign-up', signupData);
 
       if (response.data.success) {
-        setSuccess('Registration successful! Please verify your email with the OTP sent to your email.');
+        const successMsg = 'Registration successful! Please verify your email with the OTP sent to your email.';
+        setSuccess(successMsg);
+        showSuccess(successMsg);
         setStep(2);
       } else {
-        setError(response.data.message || 'Registration failed. Please try again.');
+        const errorMsg = response.data.message || 'Registration failed. Please try again.';
+        setError(errorMsg);
+        showError(errorMsg);
       }
     } catch (error) {
       console.error('Sign up error:', error);
+      let errorMsg = 'Registration failed. Please try again.';
+
       if (error.response && error.response.data) {
-        setError(error.response.data.message || 'Registration failed. Please try again.');
-      } else {
-        setError('Registration failed. Please try again.');
+        errorMsg = error.response.data.message || errorMsg;
       }
+
+      setError(errorMsg);
+      showError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -93,20 +104,29 @@ const SignUp = () => {
       });
 
       if (response.data.success) {
-        setSuccess('Email verified successfully! Redirecting to login...');
+        const successMsg = 'Email verified successfully! Redirecting to login...';
+        setSuccess(successMsg);
+        showSuccess(successMsg);
+
+        // Use setTimeout to ensure the toast is visible before redirect
         setTimeout(() => {
           navigate('/signin');
         }, 2000);
       } else {
-        setError(response.data.message || 'OTP verification failed. Please try again.');
+        const errorMsg = response.data.message || 'OTP verification failed. Please try again.';
+        setError(errorMsg);
+        showError(errorMsg);
       }
     } catch (error) {
       console.error('OTP verification error:', error);
+      let errorMsg = 'OTP verification failed. Please try again.';
+
       if (error.response && error.response.data) {
-        setError(error.response.data.message || 'OTP verification failed. Please try again.');
-      } else {
-        setError('OTP verification failed. Please try again.');
+        errorMsg = error.response.data.message || errorMsg;
       }
+
+      setError(errorMsg);
+      showError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -118,24 +138,31 @@ const SignUp = () => {
 
     try {
       // We'll reuse the signup endpoint since it sends an OTP
-      const response = await axiosInstance.post('/ekmate/api/v1/auth/sign-up', {
+      const response = await axiosInstance.post('/auth/sign-up', {
         email: formData.email,
         password: formData.password,
-        role: 'student' // Default to student role for simplicity
+        role: formData.role || 'student' // Use the role from form data or default to student
       });
 
       if (response.data.success) {
-        setSuccess('OTP has been resent to your email.');
+        const successMsg = 'OTP has been resent to your email.';
+        setSuccess(successMsg);
+        showSuccess(successMsg);
       } else {
-        setError(response.data.message || 'Failed to resend OTP. Please try again.');
+        const errorMsg = response.data.message || 'Failed to resend OTP. Please try again.';
+        setError(errorMsg);
+        showError(errorMsg);
       }
     } catch (error) {
       console.error('Resend OTP error:', error);
+      let errorMsg = 'Failed to resend OTP. Please try again.';
+
       if (error.response && error.response.data) {
-        setError(error.response.data.message || 'Failed to resend OTP. Please try again.');
-      } else {
-        setError('Failed to resend OTP. Please try again.');
+        errorMsg = error.response.data.message || errorMsg;
       }
+
+      setError(errorMsg);
+      showError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -208,7 +235,7 @@ const SignUp = () => {
                             value={formData.branch}
                             onChange={handleChange}
                             placeholder="Enter your branch"
-                            required
+
                           />
                         </Form.Group>
                       </Col>
@@ -219,7 +246,7 @@ const SignUp = () => {
                             name="year"
                             value={formData.year}
                             onChange={handleChange}
-                            required
+
                           >
                             <option value="">Select Year</option>
                             <option value="1">1st Year</option>
@@ -239,7 +266,7 @@ const SignUp = () => {
                         value={formData.phone_number}
                         onChange={handleChange}
                         placeholder="Enter your phone number"
-                        required
+
                       />
                     </Form.Group>
 

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 import axiosInstance from '../../utils/axiosConfig';
 import './Auth.css';
 
 const SimpleSignUp = () => {
   const navigate = useNavigate();
-  
+  const { showSuccess, showError } = useToast();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,7 +16,7 @@ const SimpleSignUp = () => {
     confirmPassword: '',
     role: 'student'
   });
-  
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,14 +33,16 @@ const SimpleSignUp = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      const errorMsg = 'Passwords do not match';
+      setError(errorMsg);
+      showError(errorMsg);
       setLoading(false);
       return;
     }
-    
+
     try {
       // Minimal data for signup
       const minimalData = {
@@ -47,24 +51,33 @@ const SimpleSignUp = () => {
         password: formData.password,
         role: formData.role
       };
-      
+
       const response = await axiosInstance.post('/ekmate/api/v1/auth/sign-up', minimalData);
-      
+
       if (response.data.success) {
-        setSuccess('Registration successful! Please check your email for verification instructions.');
+        const successMsg = 'Registration successful! Please check your email for verification instructions.';
+        setSuccess(successMsg);
+        showSuccess(successMsg);
+
+        // Use setTimeout to ensure the toast is visible before redirect
         setTimeout(() => {
           navigate('/signin');
         }, 3000);
       } else {
-        setError(response.data.message || 'Registration failed. Please try again.');
+        const errorMsg = response.data.message || 'Registration failed. Please try again.';
+        setError(errorMsg);
+        showError(errorMsg);
       }
     } catch (error) {
       console.error('Sign up error:', error);
+      let errorMsg = 'Registration failed. Please try again.';
+
       if (error.response && error.response.data) {
-        setError(error.response.data.message || 'Registration failed. Please try again.');
-      } else {
-        setError('Registration failed. Please try again.');
+        errorMsg = error.response.data.message || errorMsg;
       }
+
+      setError(errorMsg);
+      showError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -83,68 +96,68 @@ const SimpleSignUp = () => {
                     Create your account with minimal information
                   </p>
                 </div>
-                
+
                 {error && <Alert variant="danger">{error}</Alert>}
                 {success && <Alert variant="success">{success}</Alert>}
-                
+
                 <Form onSubmit={handleSignUp}>
                   <Form.Group className="mb-3">
                     <Form.Label>Full Name</Form.Label>
-                    <Form.Control 
-                      type="text" 
-                      name="name" 
+                    <Form.Control
+                      type="text"
+                      name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="Enter your full name" 
-                      required 
+                      placeholder="Enter your full name"
+                      required
                     />
                   </Form.Group>
-                  
+
                   <Form.Group className="mb-3">
                     <Form.Label>Email</Form.Label>
-                    <Form.Control 
-                      type="email" 
-                      name="email" 
+                    <Form.Control
+                      type="email"
+                      name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="Enter your email" 
-                      required 
+                      placeholder="Enter your email"
+                      required
                     />
                   </Form.Group>
-                  
+
                   <Form.Group className="mb-3">
                     <Form.Label>Password</Form.Label>
-                    <Form.Control 
-                      type="password" 
-                      name="password" 
+                    <Form.Control
+                      type="password"
+                      name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      placeholder="Enter your password" 
-                      required 
+                      placeholder="Enter your password"
+                      required
                     />
                   </Form.Group>
-                  
+
                   <Form.Group className="mb-4">
                     <Form.Label>Confirm Password</Form.Label>
-                    <Form.Control 
-                      type="password" 
-                      name="confirmPassword" 
+                    <Form.Control
+                      type="password"
+                      name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      placeholder="Confirm your password" 
-                      required 
+                      placeholder="Confirm your password"
+                      required
                     />
                   </Form.Group>
-                  
-                  <Button 
-                    variant="primary" 
-                    type="submit" 
+
+                  <Button
+                    variant="primary"
+                    type="submit"
                     className="w-100 mb-3"
                     disabled={loading}
                   >
                     {loading ? 'Signing Up...' : 'Sign Up'}
                   </Button>
-                  
+
                   <div className="text-center">
                     <p className="mb-0">
                       Already have an account? <Link to="/signin" className="auth-link">Sign In</Link>

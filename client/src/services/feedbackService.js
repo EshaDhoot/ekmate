@@ -129,6 +129,43 @@ const feedbackService = {
     } catch (error) {
       throw error.response?.data || { message: 'Failed to fetch pending feedback' };
     }
+  },
+
+  /**
+   * Get all feedback (admin only)
+   * @returns {Promise} Promise with all feedback data
+   */
+  getAllFeedback: async () => {
+    try {
+      const response = await axiosInstance.get('/feedback');
+      return response.data;
+    } catch (error) {
+      console.error('Error in getAllFeedback:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch feedback',
+        data: []
+      };
+    }
+  },
+
+  /**
+   * Delete feedback (admin only)
+   * @param {string} id - Feedback ID
+   * @returns {Promise} Promise with deletion result
+   */
+  deleteFeedback: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`/feedback/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error in deleteFeedback:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete feedback',
+        data: null
+      };
+    }
   }
 };
 

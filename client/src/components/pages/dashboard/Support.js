@@ -138,7 +138,7 @@ const Support = () => {
   };
 
   return (
-    <Container fluid>
+    <Container>
       <div className="page-header">
         <h1>Help & Support</h1>
         <p className="support-subtitle">Get help with EKmate bus management system</p>

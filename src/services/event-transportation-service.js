@@ -136,6 +136,28 @@ class EventTransportationService {
             throw error;
         }
     }
+
+    async getRecentEvents(limit = 5) {
+        try {
+            const events = await this.eventTransportationRepository.findRecent(limit);
+            console.log("getRecentEvents method called successfully from EventTransportationService");
+            return events;
+        } catch (error) {
+            console.log("getRecentEvents method called from EventTransportationService and throws error: ", error);
+            throw error;
+        }
+    }
+
+    async getAllEvents(page = 1, limit = 10, query = {}) {
+        try {
+            const events = await this.eventTransportationRepository.findAll(page, limit, query);
+            console.log("getAllEvents method called successfully from EventTransportationService");
+            return events;
+        } catch (error) {
+            console.log("getAllEvents method called from EventTransportationService and throws error: ", error);
+            throw error;
+        }
+    }
 }
 
 export default EventTransportationService;

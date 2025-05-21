@@ -146,6 +146,43 @@ class FeedbackService {
             throw error;
         }
     }
+
+    async getAllFeedback(page = 1, limit = 10) {
+        try {
+            const feedback = await this.feedbackRepository.findAll(page, limit);
+            console.log("getAllFeedback method called successfully from FeedbackService");
+            return feedback;
+        } catch (error) {
+            console.log("getAllFeedback method called from FeedbackService and throws error: ", error);
+            throw error;
+        }
+    }
+
+    async getRecentFeedback(limit = 5) {
+        try {
+            const feedback = await this.feedbackRepository.findRecent(limit);
+            console.log("getRecentFeedback method called successfully from FeedbackService");
+            return feedback;
+        } catch (error) {
+            console.log("getRecentFeedback method called from FeedbackService and throws error: ", error);
+            throw error;
+        }
+    }
+
+    // This method is now properly implemented in UserService
+    // This is just a wrapper that delegates to UserService
+    async getUsersCount() {
+        try {
+            const UserService = require('./user-service').default;
+            const userService = new UserService();
+            const count = await userService.getUsersCount();
+            console.log("getUsersCount method called successfully from FeedbackService (delegated to UserService)");
+            return count;
+        } catch (error) {
+            console.log("getUsersCount method called from FeedbackService and throws error: ", error);
+            throw error;
+        }
+    }
 }
 
 export default FeedbackService;

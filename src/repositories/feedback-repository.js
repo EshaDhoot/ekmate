@@ -34,9 +34,9 @@ class FeedbackRepository {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit);
-            
+
             const total = await Feedback.countDocuments({ busId });
-            
+
             console.log("Feedback found successfully, findByBusId method called successfully from FeedbackRepository");
             return { feedback, total, page, limit, pages: Math.ceil(total / limit) };
         } catch (error) {
@@ -52,9 +52,9 @@ class FeedbackRepository {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit);
-            
+
             const total = await Feedback.countDocuments({ userId });
-            
+
             console.log("Feedback found successfully, findByUserId method called successfully from FeedbackRepository");
             return { feedback, total, page, limit, pages: Math.ceil(total / limit) };
         } catch (error) {
@@ -107,13 +107,47 @@ class FeedbackRepository {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit);
-            
+
             const total = await Feedback.countDocuments({ status });
-            
+
             console.log("Feedback found successfully, findByStatus method called successfully from FeedbackRepository");
             return { feedback, total, page, limit, pages: Math.ceil(total / limit) };
         } catch (error) {
             console.log("Unable to find feedback, findByStatus method called from FeedbackRepository and throws error: ", error);
+            throw error;
+        }
+    }
+
+    async findAll(page = 1, limit = 10) {
+        try {
+            const skip = (page - 1) * limit;
+            const feedback = await Feedback.find()
+                .populate('userId', 'name email')
+                .populate('busId', 'busNumber')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit);
+
+            const total = await Feedback.countDocuments();
+
+            console.log("All feedback found successfully, findAll method called successfully from FeedbackRepository");
+            return { feedback, total, page, limit, pages: Math.ceil(total / limit) };
+        } catch (error) {
+            console.log("Unable to find all feedback, findAll method called from FeedbackRepository and throws error: ", error);
+            throw error;
+        }
+    }
+
+    async findRecent(limit = 5) {
+        try {
+            const feedback = await Feedback.find()
+                .sort({ createdAt: -1 })
+                .limit(limit);
+
+            console.log("Recent feedback found successfully, findRecent method called successfully from FeedbackRepository");
+            return feedback;
+        } catch (error) {
+            console.log("Unable to find recent feedback, findRecent method called from FeedbackRepository and throws error: ", error);
             throw error;
         }
     }

@@ -46,6 +46,64 @@ const busService = {
   },
 
   /**
+   * Create a new bus
+   * @param {Object} busData - Bus data
+   * @returns {Promise} Promise with created bus data
+   */
+  createBus: async (busData) => {
+    try {
+      const response = await axiosInstance.post('/buses', busData);
+      return response.data;
+    } catch (error) {
+      console.error('Error in createBus:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to create bus',
+        data: null
+      };
+    }
+  },
+
+  /**
+   * Update a bus
+   * @param {string} id - Bus ID
+   * @param {Object} busData - Updated bus data
+   * @returns {Promise} Promise with updated bus data
+   */
+  updateBus: async (id, busData) => {
+    try {
+      const response = await axiosInstance.put(`/buses/${id}`, busData);
+      return response.data;
+    } catch (error) {
+      console.error('Error in updateBus:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update bus',
+        data: null
+      };
+    }
+  },
+
+  /**
+   * Delete a bus
+   * @param {string} id - Bus ID
+   * @returns {Promise} Promise with deletion status
+   */
+  deleteBus: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`/buses/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error in deleteBus:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete bus',
+        data: null
+      };
+    }
+  },
+
+  /**
    * Get latest location of a bus
    * @param {string} busId - Bus ID
    * @returns {Promise} Promise with location data
