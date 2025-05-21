@@ -44,6 +44,8 @@ import AdminEvents from './components/admin/AdminEvents';
 import AdminFeedback from './components/admin/AdminFeedback';
 import AdminMaintenance from './components/admin/AdminMaintenance';
 import AdminAnalytics from './components/admin/AdminAnalytics';
+import Terms from './components/pages/terms-conditions/Terms';
+import Faq from './components/pages/Faq';
 
 // Root component to handle authentication redirects
 const AppRoutes = () => {
@@ -71,6 +73,8 @@ const AppRoutes = () => {
         } />
         <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
         <Route path="/contact" element={<><Navbar /><Contact /><Footer /></>} />
+        <Route path="/terms" element={<><Navbar /><Terms /><Footer /></>} />
+        <Route path="/faq" element={<><Navbar /><Faq /><Footer /></>} />
         <Route path="/signup" element={
           isAuthenticated() ?
           (currentUser?.role === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />) :

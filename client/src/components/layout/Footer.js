@@ -55,9 +55,9 @@ const Footer = () => {
               &copy; {new Date().getFullYear()} EKmate. All rights reserved.
             </p>
             <div className="footer-bottom-links">
-              <a href="#">Terms of Service</a>
+              <a href="/terms">Terms of Service</a>
               <span className="mx-2">|</span>
-              <a href="#">Privacy Policy</a>
+              <a href="/terms">Privacy Policy</a>
             </div>
           </Col>
         </Row>
